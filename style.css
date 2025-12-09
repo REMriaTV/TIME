@@ -182,3 +182,26 @@ footer {
     .system-logs { display: none; } /* スマホではログを隠す */
 }
 
+/* style.css の末尾に追加 */
+
+/* 予定がある日のスタイル */
+.has-event {
+    position: relative;
+    color: var(--main-color);
+    text-shadow: 0 0 8px var(--main-color);
+    border: 1px dashed var(--accent-color) !important; /* 枠線を紫の破線に */
+}
+
+/* 右上に小さなマーカーを表示 */
+.has-event::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+    box-shadow: 0 0 5px var(--accent-color);
+}
+
