@@ -1,0 +1,48 @@
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHOST_CALENDAR // SYSTEM_READY</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="crt-overlay"></div> <div class="container">
+        <header>
+            <div class="glitch-text" data-text="SYSTEM_DATE:">SYSTEM_DATE:</div>
+            <div id="clock">00:00:00</div>
+        </header>
+
+        <main>
+            <section class="calendar-frame">
+                <div class="calendar-header">
+                    <button id="prevBtn">&lt;</button>
+                    <h2 id="monthYear">LOADING...</h2>
+                    <button id="nextBtn">&gt;</button>
+                </div>
+                <div class="weekdays">
+                    <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+                </div>
+                <div class="days" id="daysContainer">
+                    </div>
+            </section>
+
+            <aside class="system-logs">
+                <h3>>> SYSTEM_LOGS</h3>
+                <ul id="logList">
+                    <li>Initializing kernel...</li>
+                    <li>Loading graphical interface...</li>
+                </ul>
+            </aside>
+        </main>
+        
+        <footer>
+            STATUS: <span class="blink">ONLINE</span> // MEM: 64TB // SECURE_CONNECTION
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
