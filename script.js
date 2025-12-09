@@ -1,20 +1,18 @@
 // ==========================================
 //  CONFIG: 任務データ（スケジュール）の設定
 // ==========================================
-// 形式: "YYYY-MM-DD": "表示させたい文字"
+// ★改善：1日に複数の予定がある場合は ["予定1", "予定2"] のように書けます
 const missionData = {
-    "2025-12-12": "DEADLINE: PROJECT_ALPHA", // 締め切り
-    "2025-12-24": "PROTOCOL: HOLY_NIGHT",    // クリスマスイブ
-    "2025-12-25": "GIFT_DISTRIBUTION",       // クリスマス
-    "2025-12-31": "SYSTEM_SHUTDOWN // END",  // 大晦日
-    "2026-01-01": "BOOT_SEQUENCE: 2026",     // 元旦
-    "2026-01-07": "SERVER_MAINTENANCE",      // メンテ
-    "2026-01-12": "中平のお父さん⏰18:00-19:00",    //食事
-
+    "2025-12-12": ["DEADLINE: PROJECT_ALPHA", "Buy Energy Drinks"], 
+    "2025-12-24": ["PROTOCOL: HOLY_NIGHT", "Dinner Reservation 19:00"],
+    "2025-12-25": "GIFT_DISTRIBUTION",
+    "2025-12-31": ["SYSTEM_SHUTDOWN", "Backup All Data", "Eat Soba"],
+    "2026-01-01": "BOOT_SEQUENCE: 2026",
+    "2026-01-07": "SERVER_MAINTENANCE"
 };
 
 // ==========================================
-//  SYSTEM: 動作ロジック（ここから下は触らなくてOK）
+//  SYSTEM: 動作ロジック
 // ==========================================
 const date = new Date();
 const daysContainer = document.getElementById("daysContainer");
@@ -23,6 +21,12 @@ const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const clockElement = document.getElementById("clock");
 const logList = document.getElementById("logList");
+
+// ポップアップ用の要素
+const modalOverlay = document.getElementById("modalOverlay");
+const modalDate = document.getElementById("modalDate");
+const modalTaskList = document.getElementById("modalTaskList");
+const closeModalBtn = document.getElementById("closeModalBtn");
 
 // カレンダー描画関数
 function renderCalendar() {
@@ -44,112 +48,118 @@ function renderCalendar() {
 
     let days = "";
 
-    // 前月の日付（グレーアウト）
+    // 前月
     for (let x = firstDayIndex; x > 0; x--) {
         days += `<div class="empty">${prevLastDay - x + 1}</div>`;
     }
 
-    // 当月の日付（ここがメイン）
+    // 当月
     for (let i = 1; i <= lastDay; i++) {
-        // 今日の判定
         const isToday = i === new Date().getDate() && 
                         month === new Date().getMonth() && 
                         year === new Date().getFullYear();
         
-        // 予定の判定用キー作成 (例: "2025-12-05")
+        // キー作成
         const checkMonth = String(month + 1).padStart(2, '0');
         const checkDay = String(i).padStart(2, '0');
         const dateKey = `${year}-${checkMonth}-${checkDay}`;
         
-        // 予定があるかチェック
-        const eventText = missionData[dateKey];
-        const hasEventClass = eventText ? "has-event" : "";
-        const eventAttr = eventText ? eventText : "";
-
-        // HTML生成
+        // 予定チェック
+        const rawData = missionData[dateKey];
+        const hasEventClass = rawData ? "has-event" : "";
+        
+        // データ属性にはキー(日付)を持たせておく
         let dayClass = "";
         if (isToday) dayClass += "today ";
         if (hasEventClass) dayClass += hasEventClass;
 
-        days += `<div class="${dayClass}" data-event="${eventAttr}">${i}</div>`;
+        days += `<div class="${dayClass}" data-date="${dateKey}">${i}</div>`;
     }
 
-    // 翌月の日付
+    // 翌月
     for (let j = 1; j <= nextDays; j++) {
         days += `<div class="empty">0${j}</div>`;
     }
 
     daysContainer.innerHTML = days;
     
-    // クリックイベントの登録（予定がある日をクリックするとログが出る）
+    // ▼ クリックイベント：ポップアップを開く
     document.querySelectorAll('.days div:not(.empty)').forEach(day => {
         day.addEventListener('click', (e) => {
-            const eventText = e.target.getAttribute('data-event');
-            if (eventText) {
-                // 予定があればログに特別なメッセージを表示
-                addCustomLog(`ACCESSING DATA... [TARGET]: ${eventText}`, true);
-            }
+            const targetDate = e.target.getAttribute('data-date');
+            openModal(targetDate);
         });
     });
 }
 
-// 時計の更新
+// ポップアップを開く処理
+function openModal(dateKey) {
+    // 日付表示
+    modalDate.innerText = `TARGET_DATE: ${dateKey}`;
+    
+    // 予定リスト生成
+    modalTaskList.innerHTML = "";
+    const tasks = missionData[dateKey];
+
+    if (tasks) {
+        // 配列ならループ、文字列なら単発で処理
+        const taskArray = Array.isArray(tasks) ? tasks : [tasks];
+        
+        taskArray.forEach(task => {
+            const li = document.createElement("li");
+            li.textContent = task;
+            modalTaskList.appendChild(li);
+        });
+    } else {
+        // 予定がない場合
+        const li = document.createElement("li");
+        li.textContent = "NO_DATA_FOUND";
+        li.style.color = "#666";
+        modalTaskList.appendChild(li);
+    }
+
+    // 表示
+    modalOverlay.classList.add("active");
+}
+
+// ポップアップを閉じる処理
+function closeModal() {
+    modalOverlay.classList.remove("active");
+}
+
+// 閉じるボタン＆背景クリックで閉じる
+closeModalBtn.addEventListener("click", closeModal);
+modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) closeModal();
+});
+
+// 時計更新
 function updateClock() {
     const now = new Date();
     clockElement.innerText = now.toLocaleTimeString('en-US', { hour12: false });
 }
 
-// フェイクのシステムログ
+// フェイクログ（演出用）
 const fakeLogs = [
-    "Scanning ports...",
-    "Encrypted packet received.",
-    "Updating cache...",
-    "Ping: 14ms",
-    "Traceback complete.",
-    "User authentication: VERIFIED",
-    "Memory usage: 42%",
-    "Downloading aesthetic_patch.exe...",
-    "Render complete.",
-    "Checking integrity..."
+    "Scanning ports...", "Encrypted packet received.", "Updating cache...",
+    "Ping: 14ms", "Traceback complete.", "User authentication: VERIFIED",
+    "Memory usage: 42%", "Render complete.", "Monitoring system..."
 ];
 
-// ログを追加する関数
 function addLog() {
-    const randomLog = fakeLogs[Math.floor(Math.random() * fakeLogs.length)];
-    addCustomLog(randomLog, false);
-}
-
-// ログ表示の共通処理
-function addCustomLog(message, isImportant) {
     const li = document.createElement("li");
+    const randomLog = fakeLogs[Math.floor(Math.random() * fakeLogs.length)];
     const time = new Date().toLocaleTimeString().split(' ')[0];
-    
-    li.innerHTML = `[${time}] > ${message}`;
-    
-    if (isImportant) {
-        li.style.color = "var(--accent-color)"; // 重要なログは紫にする
-        li.style.textShadow = "0 0 5px var(--accent-color)";
-    }
-
+    li.innerHTML = `[${time}] > ${randomLog}`;
     logList.prepend(li);
-    
-    if (logList.children.length > 10) {
-        logList.removeChild(logList.lastChild);
-    }
+    if (logList.children.length > 10) logList.removeChild(logList.lastChild);
 }
 
-// ボタン操作
-prevBtn.addEventListener("click", () => {
-    date.setMonth(date.getMonth() - 1);
-    renderCalendar();
-});
+// ボタン
+prevBtn.addEventListener("click", () => { date.setMonth(date.getMonth() - 1); renderCalendar(); });
+nextBtn.addEventListener("click", () => { date.setMonth(date.getMonth() + 1); renderCalendar(); });
 
-nextBtn.addEventListener("click", () => {
-    date.setMonth(date.getMonth() + 1);
-    renderCalendar();
-});
-
-// 初期化実行
+// 実行
 renderCalendar();
 setInterval(updateClock, 1000);
 setInterval(addLog, 2500);
