@@ -294,3 +294,62 @@ footer {
     display: flex;
 }
 
+/* =========================================
+   MOBILE RESPONSIVE (スマホ最適化パッチ)
+   ========================================= */
+@media (max-width: 768px) {
+    /* 1. 全体の枠をスマホ画面ギリギリまで広げる */
+    .container {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px; /* 余白を2remから激減させる */
+        border-left: none; /* スマホでは左右の線はない方が広い */
+        border-right: none;
+        height: 100vh; /* 画面いっぱいに */
+        box-sizing: border-box; /* はみ出し防止 */
+        overflow-y: auto; /* 縦スクロール許可 */
+    }
+
+    /* 2. レイアウトを強制的に1列にする */
+    main {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* 3. スマホでは右側のログ（SYSTEM_LOGS）を完全に消す */
+    /* これがはみ出しの主犯の可能性が高いです */
+    .system-logs {
+        display: none !important;
+    }
+
+    /* 4. ヘッダー（日付と時計）を縦並びにしてスッキリさせる */
+    header {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    /* 5. カレンダーの日付セルを小さく調整 */
+    .days div {
+        padding: 5px 0; /* パディングを減らす */
+        font-size: 0.9rem; /* 文字を少し小さく */
+        height: 40px; /* 正方形っぽく整える */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* 曜日表示の調整 */
+    .weekdays div {
+        font-size: 0.8rem;
+    }
+
+    /* 6. はみ出している謎の文字対策（モーダルの誤表示防止） */
+    .modal-overlay {
+        z-index: 9999 !important; /* 最前面に */
+    }
+}
+
