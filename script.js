@@ -1,3 +1,15 @@
+// script.js の冒頭に追加
+
+// ▼▼▼ ここに予定を書き込む（形式： "YYYY-MM-DD": "予定内容"） ▼▼▼
+const missionData = {
+    "2025-12-15": "CLIENT_MEETING: PHASE_1",
+    "2025-12-24": "OPERATION: CHRISTMAS_EVE",
+    "2025-12-31": "SYSTEM_SHUTDOWN // YEAR_END",
+    "2026-01-01": "NEW_YEAR_BOOT_SEQUENCE"
+};
+// ▲▲▲▲▲▲
+
+
 const date = new Date();
 const daysContainer = document.getElementById("daysContainer");
 const monthYear = document.getElementById("monthYear");
