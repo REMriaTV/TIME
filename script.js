@@ -8,7 +8,7 @@ const missionData = {
     "2025-12-25": "GIFT_DISTRIBUTION",
     "2025-12-31": ["SYSTEM_SHUTDOWN", "Backup All Data", "Eat Soba"],
     "2026-01-01": "BOOT_SEQUENCE: 2026",
-    "2026-01-07": "SERVER_MAINTENANCE"
+    "2026-01-12": "中平のお父さん@熊野/18:00-19:00"
 };
 
 // ==========================================
