@@ -1,15 +1,19 @@
-// script.js の冒頭に追加
-
-// ▼▼▼ ここに予定を書き込む（形式： "YYYY-MM-DD": "予定内容"） ▼▼▼
+// ==========================================
+//  CONFIG: 任務データ（スケジュール）の設定
+// ==========================================
+// 形式: "YYYY-MM-DD": "表示させたい文字"
 const missionData = {
-    "2025-12-15": "CLIENT_MEETING: PHASE_1",
-    "2025-12-24": "OPERATION: CHRISTMAS_EVE",
-    "2025-12-31": "SYSTEM_SHUTDOWN // YEAR_END",
-    "2026-01-01": "NEW_YEAR_BOOT_SEQUENCE"
+    "2025-12-12": "DEADLINE: PROJECT_ALPHA", // 締め切り
+    "2025-12-24": "PROTOCOL: HOLY_NIGHT",    // クリスマスイブ
+    "2025-12-25": "GIFT_DISTRIBUTION",       // クリスマス
+    "2025-12-31": "SYSTEM_SHUTDOWN // END",  // 大晦日
+    "2026-01-01": "BOOT_SEQUENCE: 2026",     // 元旦
+    "2026-01-07": "SERVER_MAINTENANCE",      // メンテ
 };
-// ▲▲▲▲▲▲
 
-
+// ==========================================
+//  SYSTEM: 動作ロジック（ここから下は触らなくてOK）
+// ==========================================
 const date = new Date();
 const daysContainer = document.getElementById("daysContainer");
 const monthYear = document.getElementById("monthYear");
@@ -24,14 +28,12 @@ function renderCalendar() {
     const month = date.getMonth();
     const year = date.getFullYear();
 
-    // 月の最終日と、前の月の最終日、開始曜日を取得
     const lastDay = new Date(year, month + 1, 0).getDate();
     const prevLastDay = new Date(year, month, 0).getDate();
     const firstDayIndex = date.getDay();
     const lastDayIndex = new Date(year, month + 1, 0).getDay();
     const nextDays = 7 - lastDayIndex - 1;
 
-    // 月名の表示 (英語表記でクールに)
     const months = [
         "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
         "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
@@ -45,25 +47,48 @@ function renderCalendar() {
         days += `<div class="empty">${prevLastDay - x + 1}</div>`;
     }
 
-    // 当月の日付
+    // 当月の日付（ここがメイン）
     for (let i = 1; i <= lastDay; i++) {
-        if (
-            i === new Date().getDate() &&
-            date.getMonth() === new Date().getMonth() &&
-            date.getFullYear() === new Date().getFullYear()
-        ) {
-            days += `<div class="today">${i}</div>`;
-        } else {
-            days += `<div>${i}</div>`;
-        }
+        // 今日の判定
+        const isToday = i === new Date().getDate() && 
+                        month === new Date().getMonth() && 
+                        year === new Date().getFullYear();
+        
+        // 予定の判定用キー作成 (例: "2025-12-05")
+        const checkMonth = String(month + 1).padStart(2, '0');
+        const checkDay = String(i).padStart(2, '0');
+        const dateKey = `${year}-${checkMonth}-${checkDay}`;
+        
+        // 予定があるかチェック
+        const eventText = missionData[dateKey];
+        const hasEventClass = eventText ? "has-event" : "";
+        const eventAttr = eventText ? eventText : "";
+
+        // HTML生成
+        let dayClass = "";
+        if (isToday) dayClass += "today ";
+        if (hasEventClass) dayClass += hasEventClass;
+
+        days += `<div class="${dayClass}" data-event="${eventAttr}">${i}</div>`;
     }
 
-    // 翌月の日付（埋め合わせ）
+    // 翌月の日付
     for (let j = 1; j <= nextDays; j++) {
         days += `<div class="empty">0${j}</div>`;
     }
 
     daysContainer.innerHTML = days;
+    
+    // クリックイベントの登録（予定がある日をクリックするとログが出る）
+    document.querySelectorAll('.days div:not(.empty)').forEach(day => {
+        day.addEventListener('click', (e) => {
+            const eventText = e.target.getAttribute('data-event');
+            if (eventText) {
+                // 予定があればログに特別なメッセージを表示
+                addCustomLog(`ACCESSING DATA... [TARGET]: ${eventText}`, true);
+            }
+        });
+    });
 }
 
 // 時計の更新
@@ -72,7 +97,7 @@ function updateClock() {
     clockElement.innerText = now.toLocaleTimeString('en-US', { hour12: false });
 }
 
-// フェイクのシステムログを生成する（ハッカー演出）
+// フェイクのシステムログ
 const fakeLogs = [
     "Scanning ports...",
     "Encrypted packet received.",
@@ -82,24 +107,36 @@ const fakeLogs = [
     "User authentication: VERIFIED",
     "Memory usage: 42%",
     "Downloading aesthetic_patch.exe...",
-    "Render complete."
+    "Render complete.",
+    "Checking integrity..."
 ];
 
+// ログを追加する関数
 function addLog() {
-    const li = document.createElement("li");
     const randomLog = fakeLogs[Math.floor(Math.random() * fakeLogs.length)];
+    addCustomLog(randomLog, false);
+}
+
+// ログ表示の共通処理
+function addCustomLog(message, isImportant) {
+    const li = document.createElement("li");
     const time = new Date().toLocaleTimeString().split(' ')[0];
-    li.innerText = `[${time}] > ${randomLog}`;
     
+    li.innerHTML = `[${time}] > ${message}`;
+    
+    if (isImportant) {
+        li.style.color = "var(--accent-color)"; // 重要なログは紫にする
+        li.style.textShadow = "0 0 5px var(--accent-color)";
+    }
+
     logList.prepend(li);
     
-    // ログが増えすぎたら削除
     if (logList.children.length > 10) {
         logList.removeChild(logList.lastChild);
     }
 }
 
-// イベントリスナー
+// ボタン操作
 prevBtn.addEventListener("click", () => {
     date.setMonth(date.getMonth() - 1);
     renderCalendar();
@@ -110,7 +147,7 @@ nextBtn.addEventListener("click", () => {
     renderCalendar();
 });
 
-// 初期化
+// 初期化実行
 renderCalendar();
 setInterval(updateClock, 1000);
-setInterval(addLog, 2500); // 2.5秒ごとに新しいログを表示
+setInterval(addLog, 2500);
