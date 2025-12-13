@@ -9,7 +9,7 @@ const missionData = {
     "2025-12-19": "「生物多様性」会議@京都",
     "2025-12-22": ["「生物多様性」1月リサーチ@京都/10:00-13:00", "アプリ開発mtg@online/15:00-16:00"],
     "2025-12-25": ["GHmtg@online/13:00-14:00", "H&Eクリスマス会@東京／18:00~"],
-    "2025-12-27": "ダイちゃん夫妻+Sacchan@自宅/12:00~14:00", // 2026から2025に修正しました
+    "2025-12-27": "ダイちゃん夫妻+Sacchan@自宅/12:00~14:00",
     "2026-01-12": "中平のお父さん/18:00-19:00＠熊野",
     "2026-01-13": "YBS中学校_理論＋ティーワーク/13:00-14:30@三重",
     "2026-01-15": "YBS中学校_ワーク/13:00-15:00@三重",
@@ -43,14 +43,17 @@ const logList = document.getElementById("logList");
 
 // ポップアップ用の要素
 const modalOverlay = document.getElementById("modalOverlay");
+const modalWindow = document.querySelector(".modal-window"); // アニメーション用
 const modalDate = document.getElementById("modalDate");
 const modalTaskList = document.getElementById("modalTaskList");
 const closeModalBtn = document.getElementById("closeModalBtn");
 const prevDayBtn = document.getElementById("prevDayBtn");
 const nextDayBtn = document.getElementById("nextDayBtn");
 
-// 現在開いているポップアップの日付を保持する変数
+// 現在開いているポップアップの日付を保持
 let currentModalDateStr = "";
+// アニメーション中かどうかのフラグ
+let isAnimating = false;
 
 // 日付フォーマット関数
 function formatDateKey(d) {
@@ -60,7 +63,7 @@ function formatDateKey(d) {
     return `${y}-${m}-${day}`;
 }
 
-// カレンダー描画関数
+// カレンダー描画
 function renderCalendar() {
     date.setDate(1);
     const month = date.getMonth();
@@ -78,42 +81,26 @@ function renderCalendar() {
     monthYear.innerHTML = `${year} // <span style="color:var(--accent-color)">${months[month]}</span>`;
 
     let days = "";
-
-    // 前月
     for (let x = firstDayIndex; x > 0; x--) {
         days += `<div class="empty">${prevLastDay - x + 1}</div>`;
     }
-
-    // 当月
     for (let i = 1; i <= lastDay; i++) {
-        const isToday = i === new Date().getDate() && 
-                        month === new Date().getMonth() && 
-                        year === new Date().getFullYear();
-        
-        // キー作成
+        const isToday = i === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
         const checkMonth = String(month + 1).padStart(2, '0');
         const checkDay = String(i).padStart(2, '0');
         const dateKey = `${year}-${checkMonth}-${checkDay}`;
-        
-        // 予定チェック
         const rawData = missionData[dateKey];
         const hasEventClass = rawData ? "has-event" : "";
-        
         let dayClass = "";
         if (isToday) dayClass += "today ";
         if (hasEventClass) dayClass += hasEventClass;
-
         days += `<div class="${dayClass}" data-date="${dateKey}">${i}</div>`;
     }
-
-    // 翌月
     for (let j = 1; j <= nextDays; j++) {
         days += `<div class="empty">0${j}</div>`;
     }
-
     daysContainer.innerHTML = days;
     
-    // ▼ クリックイベント
     document.querySelectorAll('.days div:not(.empty)').forEach(day => {
         day.addEventListener('click', (e) => {
             const targetDate = e.target.getAttribute('data-date');
@@ -125,6 +112,15 @@ function renderCalendar() {
 // ポップアップを開く
 function openModal(dateKey) {
     currentModalDateStr = dateKey;
+    updateModalContent(dateKey);
+    modalOverlay.classList.add("active");
+    // 初期出現アニメーション
+    modalWindow.classList.add("pop-in");
+    setTimeout(() => modalWindow.classList.remove("pop-in"), 200);
+}
+
+// ポップアップの中身だけ更新する関数
+function updateModalContent(dateKey) {
     modalDate.innerText = `TARGET_DATE: ${dateKey}`;
     modalTaskList.innerHTML = "";
     const tasks = missionData[dateKey];
@@ -142,75 +138,80 @@ function openModal(dateKey) {
         li.style.color = "#666";
         modalTaskList.appendChild(li);
     }
-
-    modalOverlay.classList.add("active");
 }
 
-// 日付移動処理
+// ★日付移動処理（アニメーション付き）
 function changeModalDate(offset) {
-    const parts = currentModalDateStr.split('-');
-    const currentDate = new Date(parts[0], parts[1] - 1, parts[2]);
-    currentDate.setDate(currentDate.getDate() + offset);
-    const newKey = formatDateKey(currentDate);
-    openModal(newKey);
+    if (isAnimating) return; // 連打防止
+    isAnimating = true;
+
+    // 1. まず現在のカードをスライドアウトさせる
+    // offset > 0 (翌日) なら 左へ消える
+    // offset < 0 (前日) なら 右へ消える
+    const outClass = offset > 0 ? 'slide-out-left' : 'slide-out-right';
+    const inClass = offset > 0 ? 'slide-in-right' : 'slide-in-left';
+
+    modalWindow.classList.add(outClass);
+
+    // 2. アニメーション完了(0.2s)後にデータを書き換えて、スライドインさせる
+    setTimeout(() => {
+        // 日付計算
+        const parts = currentModalDateStr.split('-');
+        const currentDate = new Date(parts[0], parts[1] - 1, parts[2]);
+        currentDate.setDate(currentDate.getDate() + offset);
+        const newKey = formatDateKey(currentDate);
+        currentModalDateStr = newKey;
+
+        // データ更新
+        updateModalContent(newKey);
+
+        // クラスの付け替え
+        modalWindow.classList.remove(outClass);
+        modalWindow.classList.add(inClass);
+
+        // 3. インアニメーション完了後にクラスを消す
+        setTimeout(() => {
+            modalWindow.classList.remove(inClass);
+            isAnimating = false;
+        }, 200);
+
+    }, 200); // CSSのanimation-durationと同じ時間待つ
 }
 
 // ボタンイベント
 prevDayBtn.addEventListener("click", () => changeModalDate(-1));
 nextDayBtn.addEventListener("click", () => changeModalDate(1));
 closeModalBtn.addEventListener("click", () => modalOverlay.classList.remove("active"));
-
-// 背景クリックで閉じる（ただしスワイプ中は反応しないように注意）
 modalOverlay.addEventListener("click", (e) => {
-    // ボタンやモーダルの中身をクリックしたときは閉じない
+    // 枠外(黒い部分)と、ボタン以外の場所をクリックしたら閉じる
     if (e.target === modalOverlay) modalOverlay.classList.remove("active");
 });
 
-// ==========================================
-//  SWIPE LOGIC: スワイプ操作の実装
-// ==========================================
+// スワイプ処理
 let touchStartX = 0;
 let touchEndX = 0;
-
-// 画面に触れた瞬間
-modalOverlay.addEventListener('touchstart', e => {
-    touchStartX = e.changedTouches[0].screenX;
-}, {passive: true});
-
-// 指を離した瞬間
+modalOverlay.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
 modalOverlay.addEventListener('touchend', e => {
     touchEndX = e.changedTouches[0].screenX;
     handleSwipe();
 }, {passive: true});
 
 function handleSwipe() {
-    // 50px以上の移動でスワイプとみなす
     const threshold = 50;
-    
-    if (touchEndX < touchStartX - threshold) {
-        // 左にスワイプ（指を右から左へ）→ 「翌日へ」
-        changeModalDate(1);
-    }
-    
-    if (touchEndX > touchStartX + threshold) {
-        // 右にスワイプ（指を左から右へ）→ 「前日へ」
-        changeModalDate(-1);
-    }
+    if (touchEndX < touchStartX - threshold) changeModalDate(1); // 左スワイプで翌日
+    if (touchEndX > touchStartX + threshold) changeModalDate(-1); // 右スワイプで前日
 }
 
-// 時計更新
+// その他
 function updateClock() {
     const now = new Date();
     clockElement.innerText = now.toLocaleTimeString('en-US', { hour12: false });
 }
-
-// フェイクログ
 const fakeLogs = [
     "Scanning ports...", "Encrypted packet received.", "Updating cache...",
     "Ping: 14ms", "Traceback complete.", "User authentication: VERIFIED",
     "Memory usage: 42%", "Render complete.", "Monitoring system..."
 ];
-
 function addLog() {
     const li = document.createElement("li");
     const randomLog = fakeLogs[Math.floor(Math.random() * fakeLogs.length)];
@@ -219,13 +220,11 @@ function addLog() {
     logList.prepend(li);
     if (logList.children.length > 10) logList.removeChild(logList.lastChild);
 }
-
-// カレンダー月移動
 prevBtn.addEventListener("click", () => { date.setMonth(date.getMonth() - 1); renderCalendar(); });
 nextBtn.addEventListener("click", () => { date.setMonth(date.getMonth() + 1); renderCalendar(); });
 
-// 実行
 renderCalendar();
 setInterval(updateClock, 1000);
 setInterval(addLog, 2500);
+
 
