@@ -1,6 +1,5 @@
-Css これを修正してほしい
-
-: #050505;
+:root {
+    --bg-color: #050505;
     --main-color: #00f3ff; /* サイバーシアン */
     --accent-color: #bc13fe; /* ネオンパープル */
     --text-color: #e0e0e0;
@@ -177,23 +176,14 @@ footer {
     50% { opacity: 0; }
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    main { grid-template-columns: 1fr; }
-    .system-logs { display: none; } /* スマホではログを隠す */
-}
-
-/* style.css の末尾に追加 */
-
-/* 予定がある日のスタイル */
+/* --- Event Markers (予定がある日の装飾) --- */
 .has-event {
     position: relative;
     color: var(--main-color);
     text-shadow: 0 0 8px var(--main-color);
-    border: 1px dashed var(--accent-color) !important; /* 枠線を紫の破線に */
+    border: 1px dashed var(--accent-color) !important;
 }
 
-/* 右上に小さなマーカーを表示 */
 .has-event::after {
     content: '';
     position: absolute;
@@ -206,19 +196,22 @@ footer {
     box-shadow: 0 0 5px var(--accent-color);
 }
 
-/* ▼▼▼ 末尾に追加：ポップアップ（モーダル）のデザイン ▼▼▼ */
-
-/* 背景の暗幕 */
+/* --- Modal Popup (ポップアップ全体) --- */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85); /* かなり濃い黒 */
-    backdrop-filter: blur(2px); /* 背景を少しぼかす */
-    display: none; /* 最初は隠しておく */
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(2px);
+    display: none;
     justify-content: center;
     align-items: center;
     z-index: 100;
+}
+
+/* クラスをつけると表示される仕組み */
+.modal-overlay.active {
+    display: flex;
 }
 
 /* ウィンドウ本体 */
@@ -228,12 +221,11 @@ footer {
     background: #000;
     border: 2px solid var(--main-color);
     box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
-    padding: 2px; /* 内側の二重線用 */
+    padding: 2px;
     position: relative;
     animation: popIn 0.2s ease-out;
 }
 
-/* ポップアップ出現時のアニメーション */
 @keyframes popIn {
     0% { transform: scale(0.8); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
@@ -249,13 +241,14 @@ footer {
     align-items: center;
 }
 
-.modal-header button {
+.modal-header .close-btn {
+    margin-left: auto;
     background: transparent;
     border: none;
     color: #000;
     font-weight: bold;
-    font-size: 1.2rem;
     cursor: pointer;
+    font-size: 1.2rem;
 }
 
 .modal-content {
@@ -264,7 +257,6 @@ footer {
     min-height: 100px;
 }
 
-/* リストのデザイン */
 #modalTaskList {
     list-style: none;
     padding: 0;
@@ -274,7 +266,7 @@ footer {
 #modalTaskList li {
     padding: 0.5rem 0;
     border-bottom: 1px dashed #333;
-    font-size: 1.2rem; /* 文字を大きく！ */
+    font-size: 1.2rem;
 }
 
 #modalTaskList li::before {
@@ -290,41 +282,64 @@ footer {
     border-top: 1px solid #333;
 }
 
-/* クラスをつけると表示される仕組み */
-.modal-overlay.active {
-    display: flex;
+/* --- Side Navigation Buttons (外側の移動ボタン) --- */
+/* ★ここが今回追加された重要な部分です */
+.side-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--main-color);
+    color: var(--main-color);
+    font-family: var(--font-stack);
+    font-size: 2rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    z-index: 110;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+    backdrop-filter: blur(2px);
+}
+
+.side-nav-btn:hover {
+    background: var(--main-color);
+    color: #000;
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.8);
+}
+
+.side-nav-btn.left {
+    left: 20px;
+}
+
+.side-nav-btn.right {
+    right: 20px;
 }
 
 /* =========================================
-   MOBILE RESPONSIVE (スマホ最適化パッチ)
+   MOBILE RESPONSIVE (スマホ最適化)
    ========================================= */
 @media (max-width: 768px) {
-    /* 1. 全体の枠をスマホ画面ギリギリまで広げる */
     .container {
         width: 100%;
         max-width: 100%;
-        padding: 10px; /* 余白を2remから激減させる */
-        border-left: none; /* スマホでは左右の線はない方が広い */
+        padding: 10px;
+        border-left: none;
         border-right: none;
-        height: 100vh; /* 画面いっぱいに */
-        box-sizing: border-box; /* はみ出し防止 */
-        overflow-y: auto; /* 縦スクロール許可 */
+        height: 100vh;
+        box-sizing: border-box;
+        overflow-y: auto;
     }
 
-    /* 2. レイアウトを強制的に1列にする */
     main {
         display: flex;
         flex-direction: column;
         gap: 1rem;
     }
 
-    /* 3. スマホでは右側のログ（SYSTEM_LOGS）を完全に消す */
-    /* これがはみ出しの主犯の可能性が高いです */
     .system-logs {
         display: none !important;
     }
 
-    /* 4. ヘッダー（日付と時計）を縦並びにしてスッキリさせる */
     header {
         flex-direction: column;
         align-items: center;
@@ -333,49 +348,29 @@ footer {
         margin-bottom: 1rem;
     }
 
-    /* 5. カレンダーの日付セルを小さく調整 */
     .days div {
-        padding: 5px 0; /* パディングを減らす */
-        font-size: 0.9rem; /* 文字を少し小さく */
-        height: 40px; /* 正方形っぽく整える */
+        padding: 5px 0;
+        font-size: 0.9rem;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
     
-    /* 曜日表示の調整 */
     .weekdays div {
         font-size: 0.8rem;
     }
 
-    /* 6. はみ出している謎の文字対策（モーダルの誤表示防止） */
     .modal-overlay {
-        z-index: 9999 !important; /* 最前面に */
+        z-index: 9999 !important;
     }
+
+    /* スマホでのサイドボタンの調整 */
+    .side-nav-btn {
+        font-size: 1.5rem;
+        padding: 0.5rem 0.8rem;
+    }
+    .side-nav-btn.left { left: 5px; }
+    .side-nav-btn.right { right: 5px; }
 }
 
-/* --- Modal Navigation (ポップアップ内の移動ボタン) --- */
-.modal-header .nav-btn {
-    background: transparent;
-    border: 1px solid var(--bg-color); /* 通常時は目立たせない */
-    color: #000; /* ヘッダー背景がシアンなので文字は黒 */
-    font-weight: bold;
-    cursor: pointer;
-    padding: 0 10px;
-    font-size: 1.2rem;
-}
-
-.modal-header .nav-btn:hover {
-    color: var(--accent-color); /* ホバー時に紫になる */
-    text-shadow: 0 0 5px var(--accent-color);
-}
-
-.modal-header .close-btn {
-    margin-left: auto; /* Xボタンを右端に寄せる */
-    background: transparent;
-    border: none;
-    color: #000;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1.2rem;
-}
