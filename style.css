@@ -353,3 +353,28 @@ footer {
     }
 }
 
+/* --- Modal Navigation (ポップアップ内の移動ボタン) --- */
+.modal-header .nav-btn {
+    background: transparent;
+    border: 1px solid var(--bg-color); /* 通常時は目立たせない */
+    color: #000; /* ヘッダー背景がシアンなので文字は黒 */
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 10px;
+    font-size: 1.2rem;
+}
+
+.modal-header .nav-btn:hover {
+    color: var(--accent-color); /* ホバー時に紫になる */
+    text-shadow: 0 0 5px var(--accent-color);
+}
+
+.modal-header .close-btn {
+    margin-left: auto; /* Xボタンを右端に寄せる */
+    background: transparent;
+    border: none;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
