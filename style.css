@@ -205,7 +205,7 @@ footer {
     padding: 0.8rem;
     background: rgba(255, 255, 255, 0.05);
     border-left: 3px solid #666;
-    font-size: 1.2rem;
+    font-size: 0.85rem;
     color: #ccc;
     font-style: italic;
     white-space: pre-wrap;
@@ -340,7 +340,7 @@ footer {
     
     .timeline-content {
         padding-bottom: 0.3em; /* 行間をさらに詰める */
-        font-size: 1.2em; /* 文字を少し小さく */
+        font-size: 0.85em; /* 文字を少し小さく */
         line-height: 1.1;
     }
     
