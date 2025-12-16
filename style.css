@@ -1,4 +1,4 @@
-:root {
+　:root {
     --bg-color: #050505;
     --main-color: #00f3ff; /* サイバーシアン */
     --accent-color: #bc13fe; /* ネオンパープル */
@@ -102,7 +102,7 @@ footer {
     border-radius: 50%; box-shadow: 0 0 5px var(--accent-color);
 }
 
-/* --- Modal Popup --- */
+/* --- Modal Popup (スクロール対策修正) --- */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(2px);
@@ -113,7 +113,7 @@ footer {
 
 .modal-window {
     width: 80%; max-width: 500px;
-    max-height: 85vh; /* スクロール対策 */
+    max-height: 85vh; 
     display: flex; 
     flex-direction: column;
     
@@ -140,7 +140,7 @@ footer {
 .modal-content {
     padding: 1.5rem;
     color: var(--text-color);
-    overflow-y: auto; /* スクロール許可 */
+    overflow-y: auto;
     flex: 1;
     min-height: 100px;
     scrollbar-width: thin;
@@ -214,17 +214,18 @@ footer {
 }
 .task-note::before { content: '// NOTE: '; color: #666; font-weight: bold; font-style: normal; display: block; margin-bottom: 0.5rem; }
 
-/* ★修正：ルートタイムライン表示のデザイン（丸なし・時間強調版） */
+/* ★修正：ルートタイムライン表示のデザイン（極限までシンプル＆時刻強調） */
 .route-timeline {
     margin-top: 0.5rem;
     font-style: normal;
 }
 .timeline-step {
     display: flex;
-    align-items: center; /* 縦方向中央揃えでコンパクトに */
-    padding-bottom: 0.1rem; /* 最小限の余白 */
+    align-items: center; /* 縦方向中央揃え */
+    /* 余白を詰める */
+    padding-bottom: 0.2rem;
     position: relative;
-    padding-left: 0.5rem; /* 左余白を減らす（丸がなくなったので） */
+    /* padding-left: 1rem; ← 縦線用の余白を削除 */
     line-height: 1.1;
     margin-bottom: 0;
 }
@@ -232,38 +233,32 @@ footer {
     padding-bottom: 0;
 }
 
-.timeline-step:not(:last-child)::after {
-    /* 縦線 */
-    content: '';
-    position: absolute;
-    left: 0; /* 左端に寄せる */
-    top: 5px; 
-    bottom: -5px; /* 線をつなげる */
-    width: 2px; /* 少し太くして存在感を出す */
-    background: #333; /* 控えめなグレー */
-}
+/* 縦線（::after）と丸（.timeline-time::before）を削除 */
+.timeline-step::after { display: none; }
+.timeline-time::before { display: none; }
 
-/* 時間表示（ピンクで大きく） */
+/* 時刻表示（ピンクで超巨大化・横幅節約） */
 .timeline-time {
     color: var(--accent-color);
     font-weight: bold;
-    margin-right: 0.8rem;
-    min-width: 50px;
-    font-size: 1.1em; /* ★大きく！ */
+    margin-right: 0.5rem;
+    /* フォントサイズを2倍程度に */
+    font-size: 1.8em; 
+    line-height: 1; /* 行間を詰めて大きく見せる */
+    letter-spacing: -1px; /* 文字間を詰めて横幅節約 */
     position: relative;
-    padding-top: 0;
-    text-shadow: 0 0 5px rgba(188, 19, 254, 0.5); /* ピンクの発光 */
-}
-
-/* ★修正: 丸（ドット）を削除 */
-.timeline-time::before {
-    display: none;
+    text-shadow: 0 0 10px rgba(188, 19, 254, 0.6); /* 強めの発光 */
+    min-width: 65px; /* 最低限の幅確保 */
+    text-align: right; /* 右揃えにして揃える */
 }
 
 .timeline-content {
     color: #fff;
     flex: 1;
+    font-size: 0.95em; /* コンテンツは少し小さくしてバランス取る */
     padding-top: 0;
+    padding-left: 0.5rem; /* 時刻との間に少し隙間 */
+    border-left: 1px solid #333; /* 控えめな区切り線だけ残す（読みやすさのため） */
 }
 
 /* アクションボタン（マップ・ルート） */
@@ -299,7 +294,7 @@ footer {
 .modal-footer { 
     padding: 0.5rem; text-align: right; font-size: 0.7rem; color: #666; 
     border-top: 1px solid #333;
-    flex-shrink: 0; /* フッターも縮ませない */
+    flex-shrink: 0;
 }
 
 /* --- Side Navigation Buttons --- */
