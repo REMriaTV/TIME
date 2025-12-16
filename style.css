@@ -1,4 +1,4 @@
-　:root {
+:root {
     --bg-color: #050505;
     --main-color: #00f3ff; /* サイバーシアン */
     --accent-color: #bc13fe; /* ネオンパープル */
@@ -102,7 +102,7 @@ footer {
     border-radius: 50%; box-shadow: 0 0 5px var(--accent-color);
 }
 
-/* --- Modal Popup (スクロール対策修正) --- */
+/* --- Modal Popup --- */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(2px);
@@ -113,7 +113,7 @@ footer {
 
 .modal-window {
     width: 80%; max-width: 500px;
-    max-height: 85vh; 
+    max-height: 85vh; /* スクロール対策 */
     display: flex; 
     flex-direction: column;
     
@@ -140,7 +140,7 @@ footer {
 .modal-content {
     padding: 1.5rem;
     color: var(--text-color);
-    overflow-y: auto;
+    overflow-y: auto; /* スクロール許可 */
     flex: 1;
     min-height: 100px;
     scrollbar-width: thin;
@@ -214,51 +214,41 @@ footer {
 }
 .task-note::before { content: '// NOTE: '; color: #666; font-weight: bold; font-style: normal; display: block; margin-bottom: 0.5rem; }
 
-/* ★修正：ルートタイムライン表示のデザイン（極限までシンプル＆時刻強調） */
+/* ★修正：ルートタイムライン表示のデザイン（完全リメイク） */
 .route-timeline {
     margin-top: 0.5rem;
     font-style: normal;
 }
 .timeline-step {
     display: flex;
-    align-items: center; /* 縦方向中央揃え */
-    /* 余白を詰める */
+    align-items: baseline; /* ベースラインで揃える */
     padding-bottom: 0.2rem;
-    position: relative;
-    /* padding-left: 1rem; ← 縦線用の余白を削除 */
-    line-height: 1.1;
     margin-bottom: 0;
-}
-.timeline-step:last-child {
-    padding-bottom: 0;
+    position: relative;
 }
 
-/* 縦線（::after）と丸（.timeline-time::before）を削除 */
+/* 丸と線を完全に削除 */
 .timeline-step::after { display: none; }
 .timeline-time::before { display: none; }
 
-/* 時刻表示（ピンクで超巨大化・横幅節約） */
+/* 時刻表示（ピンク・巨大・詰める） */
 .timeline-time {
     color: var(--accent-color);
     font-weight: bold;
     margin-right: 0.5rem;
-    /* フォントサイズを2倍程度に */
-    font-size: 1.8em; 
-    line-height: 1; /* 行間を詰めて大きく見せる */
-    letter-spacing: -1px; /* 文字間を詰めて横幅節約 */
-    position: relative;
-    text-shadow: 0 0 10px rgba(188, 19, 254, 0.6); /* 強めの発光 */
-    min-width: 65px; /* 最低限の幅確保 */
-    text-align: right; /* 右揃えにして揃える */
+    font-size: 1.8em; /* 2倍近く大きく */
+    line-height: 1;
+    letter-spacing: -1px; /* 横幅を節約 */
+    text-shadow: 0 0 10px rgba(188, 19, 254, 0.6);
+    flex-shrink: 0; /* 縮ませない */
 }
 
 .timeline-content {
     color: #fff;
     flex: 1;
-    font-size: 0.95em; /* コンテンツは少し小さくしてバランス取る */
-    padding-top: 0;
-    padding-left: 0.5rem; /* 時刻との間に少し隙間 */
-    border-left: 1px solid #333; /* 控えめな区切り線だけ残す（読みやすさのため） */
+    font-size: 0.95em;
+    padding-left: 0.5rem;
+    border-left: 1px solid #333; /* 文字の区切り線だけ薄く残す */
 }
 
 /* アクションボタン（マップ・ルート） */
@@ -343,5 +333,3 @@ footer {
     .side-nav-btn.left { left: 0; }
     .side-nav-btn.right { right: 0; }
 }
-
-
