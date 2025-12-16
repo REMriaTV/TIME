@@ -2,6 +2,29 @@
 //  CONFIG: 任務データ（スケジュール）の設定
 // ==========================================
 const missionData = {
+
+    "2025-12-27": "ダイちゃん夫妻+Sacchan@自宅/12:00~14:00",
+    "2026-01-12": "中平のお父さん/18:00-19:00＠熊野",
+    "2026-01-13": "YBS中学校_理論＋ティーワーク/13:00-14:30@三重",
+    "2026-01-15": "YBS中学校_ワーク/13:00-15:00@三重",
+    "2026-01-19": "ひのたまリサーチラボ？@現地／9:00-14:00", 
+    "2026-01-24": "「生物多様性」候補日@京都SOAN／10:00-18:00",
+    "2026-01-25": "「生物多様性」候補日@京都SOAN／13:00-18:00",
+    "2026-01-26": "おおた夢会議@online/10:00-12:00",
+
+
+// ==========================================
+//  CONFIG: 任務データ（スケジュール）の設定
+// ==========================================
+// 【入力ルール】
+// "イベント名 @ 場所 / 時間 // メモ"
+// ★移動ルートなどを書くときはバッククォート(`)を使い、
+//   時間の行を入れると自動でタイムライン表示になります。
+//   例：
+//   10:00 東京駅発
+//   12:00 京都駅着
+
+const missionData = {
     "2025-12-14": ["SEExHARUイベント@慶應三田/7:00-19:00", "移動＠三田→京都／19:00-22:00"],
     "2025-12-15": "KUNIふりかえり@京都未来庵/9:00-12:00 // 終了",
     "2025-12-16": ["奈良研修MTG@online/9:30-10:30 // 終了", "東京都ふりかえり@online/13:00~14:00"],
@@ -10,7 +33,15 @@ const missionData = {
     "2025-12-22": ["「生物多様性」1月リサーチ@京都/10:00-13:00", "アプリ開発mtg@online/15:00-16:00"],
     "2025-12-24": "ラムセス展@豊洲／9:00〜17:00 // チケット購入済",
     "2025-12-25": ["GHmtg@online/13:00-14:00", "H&Eクリスマス会@東京／18:00~ // "],
-    "2025-12-27": "ダイちゃん夫妻+Sacchan@自宅/12:00~14:00",
+    
+    // ▼ タイムライン表示の例
+    "2025-12-27": `ダイちゃん夫妻+Sacchan@自宅/12:00~14:00 // 
+【移動ルート】
+09:00 東京駅発 (のぞみ21号)
+11:15 京都駅着
+11:30 地下鉄烏丸線 -> 国際会館駅
+12:00 自宅到着`,
+    
     "2026-01-12": "中平のお父さん/18:00-19:00＠熊野",
     "2026-01-13": "YBS中学校_理論＋ティーワーク/13:00-14:30@三重",
     "2026-01-15": "YBS中学校_ワーク/13:00-15:00@三重",
@@ -34,7 +65,6 @@ const missionData = {
 // ==========================================
 //  CONFIG: アニメーション速度設定
 // ==========================================
-// 0.2秒に設定
 const SLIDE_SPEED = 200; 
 
 // ==========================================
@@ -55,6 +85,7 @@ const modalTaskList = document.getElementById("modalTaskList");
 const closeModalBtn = document.getElementById("closeModalBtn");
 const prevDayBtn = document.getElementById("prevDayBtn");
 const nextDayBtn = document.getElementById("nextDayBtn");
+const modalFooter = document.querySelector(".modal-footer");
 
 let currentModalDateStr = "";
 let isAnimating = false;
@@ -64,6 +95,24 @@ function formatDateKey(d) {
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
+}
+
+// URLパラメータのチェック（リンク共有機能用）
+function checkUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const dateParam = urlParams.get('date');
+    if (dateParam) {
+        const targetDate = new Date(dateParam);
+        if (!isNaN(targetDate.getTime())) {
+            // カレンダーをその月まで移動させる
+            date.setFullYear(targetDate.getFullYear());
+            date.setMonth(targetDate.getMonth());
+            renderCalendar(); // 再描画
+            
+            // ポップアップを開く
+            openModal(dateParam);
+        }
+    }
 }
 
 function renderCalendar() {
@@ -120,24 +169,31 @@ function openModal(dateKey) {
     setTimeout(() => modalWindow.classList.remove("pop-in"), SLIDE_SPEED);
 }
 
-// ★詳細展開機能（強化版）
+// ★詳細展開機能（タイムライン＆リンク共有対応）
 function updateModalContent(dateKey) {
     modalDate.innerText = `TARGET_DATE: ${dateKey}`;
     modalTaskList.innerHTML = "";
+    
+    // フッターにコピーボタンとリンク共有ボタンを追加
+    modalFooter.innerHTML = `
+        STATUS: DECRYPTED 
+        <button id="copyBtn" class="copy-btn">[ COPY_TEXT ]</button>
+        <button id="linkBtn" class="copy-btn" style="color:var(--main-color); border-color:var(--main-color);">[ GET_LINK ]</button>
+    `;
+    
     const tasks = missionData[dateKey];
+    let copyText = `【MISSION DATA: ${dateKey}】\n------------------------\n`;
 
     if (tasks) {
         const taskArray = Array.isArray(tasks) ? tasks : [tasks];
         
         taskArray.forEach(taskStr => {
-            // 0. 初期化
             let title = taskStr;
             let location = "UNKNOWN";
             let time = "TBD";
             let note = "";
             let isOnline = false;
 
-            // 1. メモ(//)の抽出
             if (taskStr.includes("//")) {
                 const parts = taskStr.split("//");
                 title = parts[0].trim();
@@ -146,14 +202,11 @@ function updateModalContent(dateKey) {
                 title = taskStr;
             }
 
-            // 2. 場所(@)の抽出
             if (title.includes("@") || title.includes("＠")) {
                 const splitAt = title.includes("@") ? "@" : "＠";
                 const parts = title.split(splitAt);
                 title = parts[0];
-                const remainder = parts[1]; // 場所以降
-
-                // 3. 時間(/)の抽出
+                const remainder = parts[1];
                 if (remainder.includes("/") || remainder.includes("／")) {
                     const splitSlash = remainder.includes("/") ? "/" : "／";
                     const subParts = remainder.split(splitSlash);
@@ -163,24 +216,22 @@ function updateModalContent(dateKey) {
                     location = remainder;
                 }
             } else if (title.includes("/") || title.includes("／")) {
-                // 場所がなく時間だけあるパターン
                 const splitSlash = title.includes("/") ? "/" : "／";
                 const parts = title.split(splitSlash);
                 title = parts[0];
                 time = parts[1];
             }
 
-            // 4. オンライン判定
             const onlineKeywords = ["online", "zoom", "meet", "webex", "teams", "skype", "discord", "オンライン", "リモート"];
-            const lowerLoc = location.toLowerCase();
-            if (onlineKeywords.some(keyword => lowerLoc.includes(keyword))) {
+            if (onlineKeywords.some(keyword => location.toLowerCase().includes(keyword))) {
                 isOnline = true;
             }
 
-            // 5. HTML要素作成
+            copyText += `[${time}] ${title}\nLOC: ${location}\n`;
+            if(note) copyText += `NOTE:\n${note}\n`;
+            copyText += `------------------------\n`;
+
             const locLabel = isOnline ? "CONN" : "LOC";
-            
-            // ボタンの出し分け
             let buttonsHtml = "";
             if (!isOnline && location !== "UNKNOWN") {
                 buttonsHtml += `
@@ -189,7 +240,40 @@ function updateModalContent(dateKey) {
                 `;
             }
 
-            const noteHtml = note ? `<div class="task-note">${note}</div>` : "";
+            // ★メモ欄のタイムライン変換ロジック
+            let noteHtml = "";
+            if (note) {
+                // 行ごとに分割
+                const lines = note.split('\n');
+                let timelineHtml = '<div class="route-timeline">';
+                let normalNoteHtml = '';
+                let hasTimeline = false;
+
+                lines.forEach(line => {
+                    // "HH:MM 内容" の形式にマッチするかチェック (例: 09:00 東京駅発)
+                    const timeMatch = line.trim().match(/^(\d{1,2}:\d{2})\s+(.*)/);
+                    if (timeMatch) {
+                        hasTimeline = true;
+                        timelineHtml += `
+                            <div class="timeline-step">
+                                <div class="timeline-time">${timeMatch[1]}</div>
+                                <div class="timeline-content">${timeMatch[2]}</div>
+                            </div>
+                        `;
+                    } else {
+                        // 通常のメモ行
+                        if (line.trim() !== "") {
+                            normalNoteHtml += line + "<br>";
+                        }
+                    }
+                });
+                timelineHtml += '</div>';
+
+                noteHtml = '<div class="task-note">';
+                if (normalNoteHtml) noteHtml += `<div>${normalNoteHtml}</div>`;
+                if (hasTimeline) noteHtml += timelineHtml;
+                noteHtml += '</div>';
+            }
 
             const li = document.createElement("li");
             li.className = "task-item";
@@ -199,10 +283,8 @@ function updateModalContent(dateKey) {
                     <div class="detail-grid">
                         <div class="detail-label">TIME</div>
                         <div class="detail-value">${time}</div>
-                        
                         <div class="detail-label">${locLabel}</div>
                         <div class="detail-value">${location}</div>
-                        
                         <div class="detail-label">STATUS</div>
                         <div class="detail-value" style="color:#0f0">CONFIRMED</div>
                     </div>
@@ -226,7 +308,40 @@ function updateModalContent(dateKey) {
         li.style.color = "#666";
         li.className = "task-item";
         modalTaskList.appendChild(li);
+        copyText += "NO DATA\n";
     }
+
+    // テキストコピーボタン
+    document.getElementById("copyBtn").addEventListener("click", () => {
+        navigator.clipboard.writeText(copyText).then(() => {
+            const btn = document.getElementById("copyBtn");
+            const originalText = btn.innerText;
+            btn.innerText = "COPIED!";
+            btn.style.color = "var(--active-color)";
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.color = "";
+            }, 2000);
+        });
+    });
+
+    // ★リンク生成・コピーボタン
+    document.getElementById("linkBtn").addEventListener("click", () => {
+        // 現在のURL（クエリなし） + ?date=YYYY-MM-DD
+        const baseUrl = window.location.origin + window.location.pathname;
+        const shareUrl = `${baseUrl}?date=${dateKey}`;
+        
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            const btn = document.getElementById("linkBtn");
+            const originalText = btn.innerText;
+            btn.innerText = "LINK_READY!";
+            btn.style.color = "var(--active-color)";
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.color = "var(--main-color)";
+            }, 2000);
+        });
+    });
 }
 
 function changeModalDate(offset) {
@@ -299,6 +414,8 @@ function addLog() {
 prevBtn.addEventListener("click", () => { date.setMonth(date.getMonth() - 1); renderCalendar(); });
 nextBtn.addEventListener("click", () => { date.setMonth(date.getMonth() + 1); renderCalendar(); });
 
+// 初期化時にURLパラメータをチェック
 renderCalendar();
+checkUrlParams(); // ★追加：リンクで開かれたかチェック
 setInterval(updateClock, 1000);
 setInterval(addLog, 2500);
