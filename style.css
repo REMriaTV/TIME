@@ -134,7 +134,7 @@ footer {
 
 .modal-content { padding: 1.5rem; color: var(--text-color); min-height: 100px; }
 
-/* --- 予定リストのデザイン（アコーディオン） --- */
+/* --- 予定リストのデザイン --- */
 #modalTaskList { list-style: none; padding: 0; margin: 0; }
 
 .task-item {
@@ -156,7 +156,6 @@ footer {
     display: inline-block; transition: 0.2s;
 }
 
-/* 展開時のスタイル */
 .task-item.expanded {
     border-bottom: 1px solid var(--main-color);
     background: rgba(0, 243, 255, 0.05);
@@ -184,17 +183,65 @@ footer {
 }
 .detail-value { color: #fff; word-break: break-all; }
 
-/* ★追加：メモ欄のデザイン */
+/* --- メモ欄のデザイン --- */
 .task-note {
     margin-top: 0.8rem;
-    padding: 0.5rem;
+    padding: 0.8rem;
     background: rgba(255, 255, 255, 0.05);
     border-left: 3px solid #666;
     font-size: 0.85rem;
     color: #ccc;
     font-style: italic;
+    white-space: pre-wrap;
+    line-height: 1.5;
 }
-.task-note::before { content: '// NOTE: '; color: #666; font-weight: bold; font-style: normal; }
+.task-note::before { content: '// NOTE: '; color: #666; font-weight: bold; font-style: normal; display: block; margin-bottom: 0.5rem; }
+
+/* ★追加：ルートタイムライン表示のデザイン */
+.route-timeline {
+    margin-top: 0.5rem;
+    font-style: normal; /* イタリック解除 */
+}
+.timeline-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+    position: relative;
+    padding-left: 1rem;
+}
+.timeline-step:not(:last-child)::after {
+    /* 縦線 */
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 18px; /* 丸の下から */
+    bottom: -10px; /* 次の要素まで伸ばす */
+    width: 1px;
+    background: #444;
+}
+.timeline-time {
+    color: var(--accent-color);
+    font-weight: bold;
+    margin-right: 0.8rem;
+    min-width: 45px;
+    position: relative;
+}
+/* 時間の横のドット */
+.timeline-time::before {
+    content: '';
+    position: absolute;
+    left: -1rem; /* パディング分戻る */
+    top: 6px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #000;
+    border: 2px solid var(--main-color);
+}
+.timeline-content {
+    color: #fff;
+    flex: 1;
+}
 
 /* アクションボタン（マップ・ルート） */
 .action-btn {
@@ -206,6 +253,24 @@ footer {
 }
 .action-btn:hover {
     background: var(--accent-color); color: #000; box-shadow: 0 0 10px var(--accent-color);
+}
+
+/* 共有ボタン（フッター用） */
+.copy-btn {
+    background: transparent;
+    border: 1px solid #666;
+    color: #666;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    transition: 0.2s;
+    font-family: var(--font-stack);
+}
+.copy-btn:hover {
+    border-color: var(--main-color);
+    color: var(--main-color);
+    text-shadow: 0 0 5px var(--main-color);
 }
 
 /* --- Side Navigation Buttons --- */
@@ -228,7 +293,7 @@ footer {
 .side-nav-btn.left { left: 5px; }
 .side-nav-btn.right { right: 5px; }
 
-/* --- Slide Animations (0.2sに統一) --- */
+/* --- Slide Animations (0.2s) --- */
 .slide-out-left { animation: slideOutLeft 0.2s ease-in-out forwards; }
 @keyframes slideOutLeft { 0% { transform: translateX(0); opacity: 1; } 100% { transform: translateX(-100%); opacity: 0; } }
 
