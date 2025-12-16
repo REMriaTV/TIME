@@ -113,7 +113,6 @@ footer {
 
 .modal-window {
     width: 80%; max-width: 500px;
-    /* スクロール対策：画面の高さの85%まで */
     max-height: 85vh; 
     display: flex; 
     flex-direction: column;
@@ -130,7 +129,7 @@ footer {
 .modal-header {
     background: var(--main-color); color: #000; padding: 0.5rem 1rem;
     font-weight: bold; display: flex; justify-content: space-between; align-items: center;
-    flex-shrink: 0; /* 縮小させない */
+    flex-shrink: 0;
 }
 .modal-header .close-btn {
     margin-left: auto; background: transparent; border: none;
@@ -140,14 +139,12 @@ footer {
 .modal-content {
     padding: 1.5rem;
     color: var(--text-color);
-    /* スクロール設定 */
     overflow-y: auto;
     flex: 1;
     min-height: 100px;
     scrollbar-width: thin;
     scrollbar-color: var(--main-color) #000;
 }
-/* スクロールバーのデザイン */
 .modal-content::-webkit-scrollbar { width: 6px; }
 .modal-content::-webkit-scrollbar-track { background: #000; }
 .modal-content::-webkit-scrollbar-thumb { background: var(--main-color); border-radius: 3px; }
@@ -216,47 +213,37 @@ footer {
 }
 .task-note::before { content: '// NOTE: '; color: #666; font-weight: bold; font-style: normal; display: block; margin-bottom: 0.5rem; }
 
-/* ★修正：ルートタイムライン表示のデザイン（極限圧縮版） */
+/* ★修正：ルートタイムライン表示（PC版デフォルト） */
 .route-timeline {
     margin-top: 0.5rem;
     font-style: normal;
 }
 .timeline-step {
     display: flex;
-    align-items: flex-start; /* 上揃え */
-    margin: 0 !important;    /* 余白完全削除 */
-    padding: 0 !important;   /* 余白完全削除 */
+    align-items: flex-start; 
+    margin: 0 !important;
+    padding: 0 !important;
+    margin-bottom: -5px !important;
     position: relative;
-    
-    /* ↓ここが重要。行の高さを中身ギリギリまで詰める */
-    min-height: auto; 
+    line-height: 1.0; 
 }
 
-/* 丸と線を完全に削除 */
 .timeline-step::after { display: none; }
 .timeline-time::before { display: none; }
 
-/* 時刻表示（ピンク・巨大・詰める） */
 .timeline-time {
     color: var(--accent-color);
     font-weight: bold;
-    margin-right: 0.3rem; /* 横の間隔も少し詰める */
-    
-    /* ★さらに大きく！ */
+    margin-right: 0.3rem; 
     font-size: 2.2em;     
-    
-    /* ★ここがポイント：行の高さを文字サイズより小さく設定して上下の隙間を消滅させる */
-    line-height: 0.8;     
-    height: 0.8em;        /* 高さも固定して余白を排除 */
-    
-    letter-spacing: -2px; /* 横幅ギュッ */
+    line-height: 0.8; 
+    height: 0.8em;
+    letter-spacing: -2px; 
     text-shadow: 0 0 10px rgba(188, 19, 254, 0.6);
     flex-shrink: 0;
     text-align: right;
-    width: 70px;          /* 幅固定で揃える */
-    
-    /* 位置微調整（line-heightをいじるとズレるので） */
-    transform: translateY(2px);
+    width: 75px; 
+    transform: translateY(3px);
 }
 
 .timeline-content {
@@ -265,13 +252,9 @@ footer {
     font-size: 0.9em;
     padding-left: 0.5rem;
     border-left: 1px solid #333;
-    
-    /* コンテンツ側の行間も詰める */
     line-height: 1.2; 
-    
-    /* 時刻文字の上端と合わせるための調整 */
-    padding-top: 0.2em; 
-    padding-bottom: 0.5em; /* 次の行との最低限の隙間はここで確保 */
+    padding-top: 0.3em; 
+    padding-bottom: 0.5em;
 }
 
 /* アクションボタン */
@@ -298,8 +281,7 @@ footer {
 
 .modal-footer { 
     padding: 0.5rem; text-align: right; font-size: 0.7rem; color: #666; 
-    border-top: 1px solid #333;
-    flex-shrink: 0;
+    border-top: 1px solid #333; flex-shrink: 0;
 }
 
 /* --- Side Navigation Buttons --- */
@@ -347,6 +329,32 @@ footer {
     .side-nav-btn { font-size: 3rem; padding: 0.5rem; }
     .side-nav-btn.left { left: 0; }
     .side-nav-btn.right { right: 0; }
+
+    /* ★追加: モバイル専用のタイムライン圧縮設定 */
+    .timeline-time {
+        font-size: 1.6em; /* PCより少し小さくしてバランスをとる */
+        width: 60px; /* 横幅を詰める */
+        margin-right: 0.2rem; /* コンテンツとの隙間も詰める */
+        transform: translateY(1px);
+    }
+    
+    .timeline-content {
+        padding-bottom: 0.3em; /* 行間をさらに詰める */
+        font-size: 0.85em; /* 文字を少し小さく */
+        line-height: 1.1;
+    }
+    
+    .timeline-step {
+        margin-bottom: -3px !important; /* モバイル用の詰め方 */
+    }
+    
+    /* リスト全体の余白も詰める */
+    .task-item {
+        padding: 0.5rem 0;
+    }
+    .modal-content {
+        padding: 1rem; /* 横の余白も少し減らす */
+    }
 }
 
 
