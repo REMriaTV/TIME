@@ -179,9 +179,9 @@ footer {
 .side-nav-btn.right { right: 5px; }
 
 /* --- Slide Animations (速度調整用) --- */
-/* ★ここの 0.3s を変えると速度が変わります */
+/* ★ここの 0.3s を変えると速度が変わります。jsもセットで変えてください。 */
 
-.slide-out-left { animation: slideOutLeft 0.3s ease-in-out forwards; }
+.slide-out-left { animation: slideOutLeft 0.2s ease-in-out forwards; }
 @keyframes slideOutLeft {
     0% { transform: translateX(0); opacity: 1; }
     100% { transform: translateX(-100%); opacity: 0; }
