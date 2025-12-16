@@ -134,7 +134,6 @@ footer {
 
 .modal-content { padding: 1.5rem; color: var(--text-color); min-height: 100px; }
 
-
 /* --- 予定リストのデザイン（クリッカブルに） --- */
 #modalTaskList { list-style: none; padding: 0; margin: 0; }
 
@@ -278,7 +277,7 @@ footer {
 .side-nav-btn.right { right: 5px; }
 
 /* --- Slide Animations (速度調整用) --- */
-/* ★ここの 0.3s を変えると速度が変わります。jsもセットで変えてください。 */
+/* ★ ユーザー設定: JSと合わせて全て 0.2s に統一しました */
 
 .slide-out-left { animation: slideOutLeft 0.2s ease-in-out forwards; }
 @keyframes slideOutLeft {
@@ -286,19 +285,19 @@ footer {
     100% { transform: translateX(-100%); opacity: 0; }
 }
 
-.slide-in-right { animation: slideInRight 0.3s ease-in-out forwards; }
+.slide-in-right { animation: slideInRight 0.2s ease-in-out forwards; }
 @keyframes slideInRight {
     0% { transform: translateX(100%); opacity: 0; }
     100% { transform: translateX(0); opacity: 1; }
 }
 
-.slide-out-right { animation: slideOutRight 0.3s ease-in-out forwards; }
+.slide-out-right { animation: slideOutRight 0.2s ease-in-out forwards; }
 @keyframes slideOutRight {
     0% { transform: translateX(0); opacity: 1; }
     100% { transform: translateX(100%); opacity: 0; }
 }
 
-.slide-in-left { animation: slideInLeft 0.3s ease-in-out forwards; }
+.slide-in-left { animation: slideInLeft 0.2s ease-in-out forwards; }
 @keyframes slideInLeft {
     0% { transform: translateX(-100%); opacity: 0; }
     100% { transform: translateX(0); opacity: 1; }
@@ -318,4 +317,3 @@ footer {
     .side-nav-btn.left { left: 0; }
     .side-nav-btn.right { right: 0; }
 }
-
