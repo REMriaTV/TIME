@@ -6,7 +6,7 @@ const missionData = {
     "2025-12-15": "KUNIふりかえり@京都未来庵/9:00-12:00",
     "2025-12-16": ["奈良研修MTG@online/9:30-10:30", "東京都ふりかえり@online/13:00~14:00"],
     "2025-12-17": "英賀保@不明/9:00-11:00",
-    "2025-12-19": "「生物多様性」第１回プログラム@京都",
+    "2025-12-19": "「生物多様性」会議@京都",
     "2025-12-22": ["「生物多様性」1月リサーチ@京都/10:00-13:00", "アプリ開発mtg@online/15:00-16:00"],
     "2025-12-25": ["GHmtg@online/13:00-14:00", "H&Eクリスマス会@東京／18:00~"],
     "2025-12-27": "ダイちゃん夫妻+Sacchan@自宅/12:00~14:00",
@@ -27,8 +27,15 @@ const missionData = {
     "2026-02-06": "会議＠島根/10:00-16:00",
     "2026-02-10": "会議/13:00-15:00@愛知教育大",
     "2026-02-13": "「ひのたまインパクトデー」@ヴィータホール／18:30-20:30",
-    "2026-02-15": "「ULTLAプログラム」プログラム本番@三重"
+    "2026-02-15": "「ULTLAプログラム」プログラム本番@三重／"
 };
+
+// ==========================================
+//  CONFIG: アニメーション速度設定
+// ==========================================
+// ★ここを変えるとJS側の待ち時間が変わります（単位：ミリ秒）
+// ※CSSの style.css の animation: ... 0.3s; も同じ秒数に合わせてください（300 = 0.3s）ここを 300 から 150 にすれば2倍速になり、600 にすればスローになります。 （今回は少し早めた速度 200 に設定しています）。
+const SLIDE_SPEED = 200; 
 
 // ==========================================
 //  SYSTEM: 動作ロジック
@@ -41,7 +48,6 @@ const nextBtn = document.getElementById("nextBtn");
 const clockElement = document.getElementById("clock");
 const logList = document.getElementById("logList");
 
-// ポップアップ用の要素
 const modalOverlay = document.getElementById("modalOverlay");
 const modalWindow = document.querySelector(".modal-window");
 const modalDate = document.getElementById("modalDate");
@@ -111,7 +117,7 @@ function openModal(dateKey) {
     modalOverlay.classList.add("active");
     modalWindow.classList.remove("slide-out-left", "slide-in-right", "slide-out-right", "slide-in-left");
     modalWindow.classList.add("pop-in");
-    setTimeout(() => modalWindow.classList.remove("pop-in"), 300);
+    setTimeout(() => modalWindow.classList.remove("pop-in"), SLIDE_SPEED);
 }
 
 function updateModalContent(dateKey) {
@@ -134,20 +140,19 @@ function updateModalContent(dateKey) {
     }
 }
 
-// ★横スライド変更処理 (Kindle風ページめくり)
+// ★横スライド変更処理
 function changeModalDate(offset) {
     if (isAnimating) return;
     isAnimating = true;
 
-    // 左へ移動（翌日）: currentが左へ消え、nextが右から来る
-    // 右へ移動（前日）: currentが右へ消え、prevが左から来る
     const outClass = offset > 0 ? 'slide-out-left' : 'slide-out-right';
     const inClass = offset > 0 ? 'slide-in-right' : 'slide-in-left';
 
     // 1. スライドアウト開始
     modalWindow.classList.add(outClass);
 
-    // 2. アニメーション完了間際(0.28sあたり)でデータを切り替えて、即スライドイン
+    // 2. アニメーション完了直前(少し早め)にデータを切り替える
+    // SLIDE_SPEEDから20ms引いたタイミングで切り替え（チラつき防止）
     setTimeout(() => {
         const parts = currentModalDateStr.split('-');
         const currentDate = new Date(parts[0], parts[1] - 1, parts[2]);
@@ -164,9 +169,9 @@ function changeModalDate(offset) {
         setTimeout(() => {
             modalWindow.classList.remove(inClass);
             isAnimating = false;
-        }, 300); // CSSのanimation時間と同じにする
+        }, SLIDE_SPEED);
 
-    }, 280); // アウトアニメーションがほぼ終わるタイミング
+    }, SLIDE_SPEED - 20); 
 }
 
 prevDayBtn.addEventListener("click", () => changeModalDate(-1));
