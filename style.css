@@ -2,7 +2,6 @@
     --bg-color: #050505;
     --main-color: #00f3ff; /* サイバーシアン */
     --accent-color: #bc13fe; /* ネオンパープル */
-    --active-color: #00ff00; /* 起動色のグリーン */
     --text-color: #e0e0e0;
     --font-stack: 'Share Tech Mono', monospace;
 }
@@ -138,70 +137,68 @@ footer {
 #modalTaskList li::before { content: '> '; color: var(--accent-color); }
 .modal-footer { padding: 0.5rem; text-align: right; font-size: 0.7rem; color: #666; border-top: 1px solid #333; }
 
-/* --- Side Navigation Buttons (通常時シンプル・タッチ時グリーン) --- */
+/* --- Side Navigation Buttons --- */
 .side-nav-btn {
     position: absolute;
     top: 50%; transform: translateY(-50%);
     background: transparent !important;
-    border: none !important;            /* 通常時は枠なし */
+    border: none !important;
     color: var(--main-color) !important;
     font-family: var(--font-stack);
     font-size: 4rem;
     padding: 1rem;
     cursor: pointer;
     z-index: 110;
-    transition: 0s; /* タッチの反応を即時にするため0s */
+    transition: 0s; /* タッチ反応速度最優先 */
     box-shadow: none !important;
     text-shadow: 0 0 10px var(--main-color);
     outline: none;
     opacity: 0.7;
-    -webkit-tap-highlight-color: transparent; /* スマホのタップハイライトを消す */
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* ホバーは変化なし（PCでもスマホでも邪魔しない） */
 .side-nav-btn:hover {
     opacity: 1;
 }
 
-/* ★タッチ・クリックした瞬間だけグリーンに発光・枠・背景出現 */
+/* ★修正箇所：タッチした瞬間の発光スタイル */
 .side-nav-btn:active {
-    background: rgba(0, 255, 0, 0.2) !important; /* グリーンの半透明背景 */
-    border: 2px solid var(--active-color) !important; /* グリーンの枠 */
-    color: var(--active-color) !important; /* 文字もグリーン */
-    text-shadow: 0 0 20px var(--active-color);
-    box-shadow: 0 0 30px var(--active-color) !important;
+    background: var(--main-color) !important; /* 背景をシアン一色に */
+    color: #000 !important; /* 文字は黒抜き */
+    border: none !important; /* 枠線なし */
+    
+    /* 本体を発光させる */
+    box-shadow: 0 0 20px var(--main-color), 0 0 40px var(--main-color) !important;
+    text-shadow: none; /* 文字の光は消す（黒文字にするため） */
+    
     opacity: 1;
-    transform: translateY(-50%) scale(0.95); /* 押した感触（少し凹む） */
+    transform: translateY(-50%) scale(0.95);
 }
 
 .side-nav-btn.left { left: 5px; }
 .side-nav-btn.right { right: 5px; }
 
+/* --- Slide Animations (速度調整用) --- */
+/* ★ここの 0.3s を変えると速度が変わります */
 
-/* --- Slide Animations (Kindle風ページめくりスライド) --- */
-
-/* 左へ消えていく（次へ） */
 .slide-out-left { animation: slideOutLeft 0.3s ease-in-out forwards; }
 @keyframes slideOutLeft {
     0% { transform: translateX(0); opacity: 1; }
     100% { transform: translateX(-100%); opacity: 0; }
 }
 
-/* 右から入ってくる（次へ） */
 .slide-in-right { animation: slideInRight 0.3s ease-in-out forwards; }
 @keyframes slideInRight {
     0% { transform: translateX(100%); opacity: 0; }
     100% { transform: translateX(0); opacity: 1; }
 }
 
-/* 右へ消えていく（戻る） */
 .slide-out-right { animation: slideOutRight 0.3s ease-in-out forwards; }
 @keyframes slideOutRight {
     0% { transform: translateX(0); opacity: 1; }
     100% { transform: translateX(100%); opacity: 0; }
 }
 
-/* 左から入ってくる（戻る） */
 .slide-in-left { animation: slideInLeft 0.3s ease-in-out forwards; }
 @keyframes slideInLeft {
     0% { transform: translateX(-100%); opacity: 0; }
