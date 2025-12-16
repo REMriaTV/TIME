@@ -2,6 +2,7 @@
     --bg-color: #050505;
     --main-color: #00f3ff; /* サイバーシアン */
     --accent-color: #bc13fe; /* ネオンパープル */
+    --active-color: #00ff00; /* 起動色 */
     --text-color: #e0e0e0;
     --font-stack: 'Share Tech Mono', monospace;
 }
@@ -101,7 +102,7 @@ footer {
     border-radius: 50%; box-shadow: 0 0 5px var(--accent-color);
 }
 
-/* --- Modal Popup (詳細展開機能用に修正) --- */
+/* --- Modal Popup --- */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(2px);
@@ -116,7 +117,6 @@ footer {
     border: 2px solid var(--main-color);
     box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
     padding: 2px; position: relative;
-    /* overflow: hidden; ← 削除（ツールチップなどが切れないように） */
 }
 
 /* 初期表示アニメーション */
@@ -134,7 +134,7 @@ footer {
 
 .modal-content { padding: 1.5rem; color: var(--text-color); min-height: 100px; }
 
-/* --- 予定リストのデザイン（クリッカブルに） --- */
+/* --- 予定リストのデザイン（アコーディオン） --- */
 #modalTaskList { list-style: none; padding: 0; margin: 0; }
 
 .task-item {
@@ -147,16 +147,13 @@ footer {
 
 .task-item:hover {
     color: var(--main-color);
-    padding-left: 0.5rem; /* ホバーで少し右に動く */
+    padding-left: 0.5rem;
     background: rgba(0, 243, 255, 0.05);
 }
 
 .task-item::before {
-    content: '> ';
-    color: var(--accent-color);
-    margin-right: 0.5rem;
-    display: inline-block;
-    transition: 0.2s;
+    content: '> '; color: var(--accent-color); margin-right: 0.5rem;
+    display: inline-block; transition: 0.2s;
 }
 
 /* 展開時のスタイル */
@@ -165,143 +162,84 @@ footer {
     background: rgba(0, 243, 255, 0.05);
     padding-left: 0.5rem;
 }
+.task-item.expanded::before { transform: rotate(90deg); }
 
-.task-item.expanded::before {
-    transform: rotate(90deg); /* 矢印を下に向ける */
-}
-
-/* --- 詳細情報エリア（最初は隠す） --- */
+/* --- 詳細情報エリア --- */
 .task-details {
-    display: none; /* デフォルト非表示 */
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    border-top: 1px dotted #444;
-    font-size: 0.9rem;
-    color: #aaa;
+    display: none; margin-top: 0.5rem; padding: 0.5rem;
+    border-top: 1px dotted #444; font-size: 0.9rem; color: #aaa;
     animation: slideDown 0.3s ease-out;
 }
+.task-item.expanded .task-details { display: block; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-.task-item.expanded .task-details {
-    display: block; /* 展開時に表示 */
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* 詳細グリッド */
 .detail-grid {
-    display: grid;
-    grid-template-columns: 80px 1fr;
-    gap: 0.5rem;
-    margin-bottom: 0.8rem;
+    display: grid; grid-template-columns: 80px 1fr; gap: 0.5rem; margin-bottom: 0.8rem;
 }
 
 .detail-label {
-    color: var(--main-color);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-right: 2px solid var(--accent-color);
-    padding-right: 0.5rem;
-    text-align: right;
+    color: var(--main-color); font-size: 0.75rem; text-transform: uppercase;
+    letter-spacing: 1px; border-right: 2px solid var(--accent-color);
+    padding-right: 0.5rem; text-align: right;
 }
+.detail-value { color: #fff; word-break: break-all; }
 
-.detail-value {
-    color: #fff;
-    word-break: break-all;
+/* ★追加：メモ欄のデザイン */
+.task-note {
+    margin-top: 0.8rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid #666;
+    font-size: 0.85rem;
+    color: #ccc;
+    font-style: italic;
 }
+.task-note::before { content: '// NOTE: '; color: #666; font-weight: bold; font-style: normal; }
 
-/* アクションボタン（マップなど） */
+/* アクションボタン（マップ・ルート） */
 .action-btn {
-    display: inline-block;
-    background: transparent;
-    border: 1px solid var(--accent-color);
-    color: var(--accent-color);
-    padding: 0.2rem 0.8rem;
-    font-size: 0.8rem;
-    text-decoration: none;
-    margin-right: 0.5rem;
-    transition: 0.2s;
-    font-family: var(--font-stack);
-    cursor: pointer;
+    display: inline-block; background: transparent;
+    border: 1px solid var(--accent-color); color: var(--accent-color);
+    padding: 0.2rem 0.8rem; font-size: 0.8rem; text-decoration: none;
+    margin-right: 0.5rem; margin-bottom: 0.5rem;
+    transition: 0.2s; font-family: var(--font-stack); cursor: pointer;
 }
-
 .action-btn:hover {
-    background: var(--accent-color);
-    color: #000;
-    box-shadow: 0 0 10px var(--accent-color);
+    background: var(--accent-color); color: #000; box-shadow: 0 0 10px var(--accent-color);
 }
-
 
 /* --- Side Navigation Buttons --- */
 .side-nav-btn {
-    position: absolute;
-    top: 50%; transform: translateY(-50%);
-    background: transparent !important;
-    border: none !important;
-    color: var(--main-color) !important;
-    font-family: var(--font-stack);
-    font-size: 4rem;
-    padding: 1rem;
-    cursor: pointer;
-    z-index: 110;
-    transition: 0s; /* タッチ反応速度最優先 */
-    box-shadow: none !important;
-    text-shadow: 0 0 10px var(--main-color);
-    outline: none;
-    opacity: 0.7;
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: transparent !important; border: none !important;
+    color: var(--main-color) !important; font-family: var(--font-stack);
+    font-size: 4rem; padding: 1rem; cursor: pointer; z-index: 110;
+    transition: 0s; box-shadow: none !important;
+    text-shadow: 0 0 10px var(--main-color); outline: none; opacity: 0.7;
     -webkit-tap-highlight-color: transparent;
 }
-
-.side-nav-btn:hover {
-    opacity: 1;
-}
-
-/* ★修正箇所：タッチした瞬間の発光スタイル */
+.side-nav-btn:hover { opacity: 1; }
 .side-nav-btn:active {
-    background: var(--main-color) !important; /* 背景をシアン一色に */
-    color: #000 !important; /* 文字は黒抜き */
-    border: none !important; /* 枠線なし */
-    
-    /* 本体を発光させる */
+    background: var(--main-color) !important; color: #000 !important;
+    border: none !important;
     box-shadow: 0 0 20px var(--main-color), 0 0 40px var(--main-color) !important;
-    text-shadow: none; /* 文字の光は消す（黒文字にするため） */
-    
-    opacity: 1;
-    transform: translateY(-50%) scale(0.95);
+    text-shadow: none; opacity: 1; transform: translateY(-50%) scale(0.95);
 }
-
 .side-nav-btn.left { left: 5px; }
 .side-nav-btn.right { right: 5px; }
 
-/* --- Slide Animations (速度調整用) --- */
-/* ★ ユーザー設定: JSと合わせて全て 0.2s に統一しました */
-
+/* --- Slide Animations (0.2sに統一) --- */
 .slide-out-left { animation: slideOutLeft 0.2s ease-in-out forwards; }
-@keyframes slideOutLeft {
-    0% { transform: translateX(0); opacity: 1; }
-    100% { transform: translateX(-100%); opacity: 0; }
-}
+@keyframes slideOutLeft { 0% { transform: translateX(0); opacity: 1; } 100% { transform: translateX(-100%); opacity: 0; } }
 
 .slide-in-right { animation: slideInRight 0.2s ease-in-out forwards; }
-@keyframes slideInRight {
-    0% { transform: translateX(100%); opacity: 0; }
-    100% { transform: translateX(0); opacity: 1; }
-}
+@keyframes slideInRight { 0% { transform: translateX(100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
 
 .slide-out-right { animation: slideOutRight 0.2s ease-in-out forwards; }
-@keyframes slideOutRight {
-    0% { transform: translateX(0); opacity: 1; }
-    100% { transform: translateX(100%); opacity: 0; }
-}
+@keyframes slideOutRight { 0% { transform: translateX(0); opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
 
 .slide-in-left { animation: slideInLeft 0.2s ease-in-out forwards; }
-@keyframes slideInLeft {
-    0% { transform: translateX(-100%); opacity: 0; }
-    100% { transform: translateX(0); opacity: 1; }
-}
+@keyframes slideInLeft { 0% { transform: translateX(-100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
@@ -312,7 +250,6 @@ footer {
     .days div { padding: 5px 0; font-size: 0.9rem; height: 40px; display: flex; align-items: center; justify-content: center; }
     .weekdays div { font-size: 0.8rem; }
     .modal-overlay { z-index: 9999 !important; }
-    
     .side-nav-btn { font-size: 3rem; padding: 0.5rem; }
     .side-nav-btn.left { left: 0; }
     .side-nav-btn.right { right: 0; }
