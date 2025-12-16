@@ -31,11 +31,10 @@ const missionData = {
     "2026-02-15": "「ULTLAプログラム」プログラム本番@三重／"
 };
 
+
 // ==========================================
 //  CONFIG: アニメーション速度設定
 // ==========================================
-// ★ここを変えるとJS側の待ち時間が変わります（単位：ミリ秒）
-// ※CSSの style.css の animation: ... 0.3s; も同じ秒数に合わせてください（300 = 0.3s）ここを 300 から 150 にすれば2倍速になり、600 にすればスローになります。 （今回は少し早めた速度 200 に設定しています）。
 const SLIDE_SPEED = 200; 
 
 // ==========================================
@@ -121,6 +120,7 @@ function openModal(dateKey) {
     setTimeout(() => modalWindow.classList.remove("pop-in"), SLIDE_SPEED);
 }
 
+// ★詳細展開機能付きのコンテンツ生成
 function updateModalContent(dateKey) {
     modalDate.innerText = `TARGET_DATE: ${dateKey}`;
     modalTaskList.innerHTML = "";
@@ -128,20 +128,78 @@ function updateModalContent(dateKey) {
 
     if (tasks) {
         const taskArray = Array.isArray(tasks) ? tasks : [tasks];
-        taskArray.forEach(task => {
+        
+        taskArray.forEach(taskStr => {
+            // 文字列解析: "イベント名@場所/時間" を分解する
+            let title = taskStr;
+            let location = "UNKNOWN";
+            let time = "TBD";
+
+            // 1. 場所(@)の抽出
+            if (taskStr.includes("@") || taskStr.includes("＠")) {
+                const splitAt = taskStr.includes("@") ? "@" : "＠";
+                const parts = taskStr.split(splitAt);
+                title = parts[0];
+                const remainder = parts[1]; // 場所以降
+
+                // 2. 時間(/)の抽出（場所の中に含まれている場合）
+                if (remainder.includes("/") || remainder.includes("／")) {
+                    const splitSlash = remainder.includes("/") ? "/" : "／";
+                    const subParts = remainder.split(splitSlash);
+                    location = subParts[0];
+                    time = subParts[1];
+                } else {
+                    location = remainder;
+                }
+            } else if (taskStr.includes("/") || taskStr.includes("／")) {
+                // 場所がなく時間だけあるパターン
+                const splitSlash = taskStr.includes("/") ? "/" : "／";
+                const parts = taskStr.split(splitSlash);
+                title = parts[0];
+                time = parts[1];
+            }
+
+            // HTML要素作成
             const li = document.createElement("li");
-            li.textContent = task;
+            li.className = "task-item";
+            li.innerHTML = `
+                <span class="task-title">${title}</span>
+                <div class="task-details">
+                    <div class="detail-grid">
+                        <div class="detail-label">TIME</div>
+                        <div class="detail-value">${time}</div>
+                        
+                        <div class="detail-label">LOC</div>
+                        <div class="detail-value">${location}</div>
+                        
+                        <div class="detail-label">STATUS</div>
+                        <div class="detail-value" style="color:#0f0">CONFIRMED</div>
+                    </div>
+                    <div class="task-actions">
+                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}" target="_blank" class="action-btn">>> OPEN_MAP</a>
+                    </div>
+                </div>
+            `;
+            
+            // クリックで開閉するイベント
+            li.addEventListener("click", function(e) {
+                // リンク（マップボタン）をクリックしたときは開閉しない
+                if(e.target.classList.contains('action-btn')) return;
+                
+                this.classList.toggle("expanded");
+            });
+
             modalTaskList.appendChild(li);
         });
     } else {
         const li = document.createElement("li");
         li.textContent = "NO_DATA_FOUND";
         li.style.color = "#666";
+        li.className = "task-item"; // スタイル合わせ
         modalTaskList.appendChild(li);
     }
 }
 
-// ★横スライド変更処理
 function changeModalDate(offset) {
     if (isAnimating) return;
     isAnimating = true;
@@ -149,11 +207,8 @@ function changeModalDate(offset) {
     const outClass = offset > 0 ? 'slide-out-left' : 'slide-out-right';
     const inClass = offset > 0 ? 'slide-in-right' : 'slide-in-left';
 
-    // 1. スライドアウト開始
     modalWindow.classList.add(outClass);
 
-    // 2. アニメーション完了直前(少し早め)にデータを切り替える
-    // SLIDE_SPEEDから20ms引いたタイミングで切り替え（チラつき防止）
     setTimeout(() => {
         const parts = currentModalDateStr.split('-');
         const currentDate = new Date(parts[0], parts[1] - 1, parts[2]);
@@ -166,7 +221,6 @@ function changeModalDate(offset) {
         modalWindow.classList.remove(outClass);
         modalWindow.classList.add(inClass);
 
-        // 3. インアニメーション完了後にクラスを削除
         setTimeout(() => {
             modalWindow.classList.remove(inClass);
             isAnimating = false;
@@ -182,7 +236,6 @@ modalOverlay.addEventListener("click", (e) => {
     if (e.target === modalOverlay) modalOverlay.classList.remove("active");
 });
 
-// スワイプ処理
 let touchStartX = 0;
 let touchEndX = 0;
 modalOverlay.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
