@@ -3,13 +3,13 @@
 // ==========================================
 const missionData = {
     "2025-12-14": ["SEExHARUイベント@慶應三田/7:00-19:00", "移動＠三田→京都／19:00-22:00"],
-    "2025-12-15": "KUNIふりかえり@京都未来庵/9:00-12:00",
-    "2025-12-16": ["奈良研修MTG@online/9:30-10:30", "東京都ふりかえり@online/13:00~14:00"],
+    "2025-12-15": "KUNIふりかえり@京都未来庵/9:00-12:00 // 終了",
+    "2025-12-16": ["奈良研修MTG@online/9:30-10:30 // 終了", "東京都ふりかえり@online/13:00~14:00"],
     "2025-12-17": "英賀保@不明/9:00-11:00",
-    "2025-12-19": "「生物多様性」会議@京都",
+    "2025-12-19": "「生物多様性」会議@京都 // アレンジ度合いを探る",
     "2025-12-22": ["「生物多様性」1月リサーチ@京都/10:00-13:00", "アプリ開発mtg@online/15:00-16:00"],
-    "2025-12-24": "ラムセス展@豊洲／9:00〜17:00",
-    "2025-12-25": ["GHmtg@online/13:00-14:00", "H&Eクリスマス会@東京／18:00~"],
+    "2025-12-24": "ラムセス展@豊洲／9:00〜17:00 // チケット購入済",
+    "2025-12-25": ["GHmtg@online/13:00-14:00", "H&Eクリスマス会@東京／18:00~ // "],
     "2025-12-27": "ダイちゃん夫妻+Sacchan@自宅/12:00~14:00",
     "2026-01-12": "中平のお父さん/18:00-19:00＠熊野",
     "2026-01-13": "YBS中学校_理論＋ティーワーク/13:00-14:30@三重",
@@ -31,10 +31,10 @@ const missionData = {
     "2026-02-15": "「ULTLAプログラム」プログラム本番@三重／"
 };
 
-
 // ==========================================
 //  CONFIG: アニメーション速度設定
 // ==========================================
+// 0.2秒に設定
 const SLIDE_SPEED = 200; 
 
 // ==========================================
@@ -120,7 +120,7 @@ function openModal(dateKey) {
     setTimeout(() => modalWindow.classList.remove("pop-in"), SLIDE_SPEED);
 }
 
-// ★詳細展開機能付きのコンテンツ生成
+// ★詳細展開機能（強化版）
 function updateModalContent(dateKey) {
     modalDate.innerText = `TARGET_DATE: ${dateKey}`;
     modalTaskList.innerHTML = "";
@@ -130,19 +130,30 @@ function updateModalContent(dateKey) {
         const taskArray = Array.isArray(tasks) ? tasks : [tasks];
         
         taskArray.forEach(taskStr => {
-            // 文字列解析: "イベント名@場所/時間" を分解する
+            // 0. 初期化
             let title = taskStr;
             let location = "UNKNOWN";
             let time = "TBD";
+            let note = "";
+            let isOnline = false;
 
-            // 1. 場所(@)の抽出
-            if (taskStr.includes("@") || taskStr.includes("＠")) {
-                const splitAt = taskStr.includes("@") ? "@" : "＠";
-                const parts = taskStr.split(splitAt);
+            // 1. メモ(//)の抽出
+            if (taskStr.includes("//")) {
+                const parts = taskStr.split("//");
+                title = parts[0].trim();
+                note = parts[1].trim();
+            } else {
+                title = taskStr;
+            }
+
+            // 2. 場所(@)の抽出
+            if (title.includes("@") || title.includes("＠")) {
+                const splitAt = title.includes("@") ? "@" : "＠";
+                const parts = title.split(splitAt);
                 title = parts[0];
                 const remainder = parts[1]; // 場所以降
 
-                // 2. 時間(/)の抽出（場所の中に含まれている場合）
+                // 3. 時間(/)の抽出
                 if (remainder.includes("/") || remainder.includes("／")) {
                     const splitSlash = remainder.includes("/") ? "/" : "／";
                     const subParts = remainder.split(splitSlash);
@@ -151,15 +162,35 @@ function updateModalContent(dateKey) {
                 } else {
                     location = remainder;
                 }
-            } else if (taskStr.includes("/") || taskStr.includes("／")) {
+            } else if (title.includes("/") || title.includes("／")) {
                 // 場所がなく時間だけあるパターン
-                const splitSlash = taskStr.includes("/") ? "/" : "／";
-                const parts = taskStr.split(splitSlash);
+                const splitSlash = title.includes("/") ? "/" : "／";
+                const parts = title.split(splitSlash);
                 title = parts[0];
                 time = parts[1];
             }
 
-            // HTML要素作成
+            // 4. オンライン判定
+            const onlineKeywords = ["online", "zoom", "meet", "webex", "teams", "skype", "discord", "オンライン", "リモート"];
+            const lowerLoc = location.toLowerCase();
+            if (onlineKeywords.some(keyword => lowerLoc.includes(keyword))) {
+                isOnline = true;
+            }
+
+            // 5. HTML要素作成
+            const locLabel = isOnline ? "CONN" : "LOC";
+            
+            // ボタンの出し分け
+            let buttonsHtml = "";
+            if (!isOnline && location !== "UNKNOWN") {
+                buttonsHtml += `
+                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}" target="_blank" class="action-btn">>> OPEN_MAP</a>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}" target="_blank" class="action-btn">>> CALC_ROUTE</a>
+                `;
+            }
+
+            const noteHtml = note ? `<div class="task-note">${note}</div>` : "";
+
             const li = document.createElement("li");
             li.className = "task-item";
             li.innerHTML = `
@@ -169,23 +200,21 @@ function updateModalContent(dateKey) {
                         <div class="detail-label">TIME</div>
                         <div class="detail-value">${time}</div>
                         
-                        <div class="detail-label">LOC</div>
+                        <div class="detail-label">${locLabel}</div>
                         <div class="detail-value">${location}</div>
                         
                         <div class="detail-label">STATUS</div>
                         <div class="detail-value" style="color:#0f0">CONFIRMED</div>
                     </div>
                     <div class="task-actions">
-                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}" target="_blank" class="action-btn">>> OPEN_MAP</a>
+                        ${buttonsHtml}
                     </div>
+                    ${noteHtml}
                 </div>
             `;
             
-            // クリックで開閉するイベント
             li.addEventListener("click", function(e) {
-                // リンク（マップボタン）をクリックしたときは開閉しない
                 if(e.target.classList.contains('action-btn')) return;
-                
                 this.classList.toggle("expanded");
             });
 
@@ -195,7 +224,7 @@ function updateModalContent(dateKey) {
         const li = document.createElement("li");
         li.textContent = "NO_DATA_FOUND";
         li.style.color = "#666";
-        li.className = "task-item"; // スタイル合わせ
+        li.className = "task-item";
         modalTaskList.appendChild(li);
     }
 }
