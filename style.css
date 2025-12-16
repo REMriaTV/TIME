@@ -134,7 +134,7 @@ footer {
 
 .modal-content { padding: 1.5rem; color: var(--text-color); min-height: 100px; }
 
-/* --- 予定リストのデザイン --- */
+/* --- 予定リストのデザイン（アコーディオン） --- */
 #modalTaskList { list-style: none; padding: 0; margin: 0; }
 
 .task-item {
@@ -197,25 +197,25 @@ footer {
 }
 .task-note::before { content: '// NOTE: '; color: #666; font-weight: bold; font-style: normal; display: block; margin-bottom: 0.5rem; }
 
-/* ★追加：ルートタイムライン表示のデザイン */
+/* ★修正：ルートタイムライン表示のデザイン（コンパクト化） */
 .route-timeline {
     margin-top: 0.5rem;
-    font-style: normal; /* イタリック解除 */
+    font-style: normal;
 }
 .timeline-step {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem; /* 間隔を狭くしました (0.5rem -> 0.25rem) */
     position: relative;
     padding-left: 1rem;
+    line-height: 1.3; /* 行間も少し詰める */
 }
 .timeline-step:not(:last-child)::after {
-    /* 縦線 */
     content: '';
     position: absolute;
     left: 4px;
-    top: 18px; /* 丸の下から */
-    bottom: -10px; /* 次の要素まで伸ばす */
+    top: 18px;
+    bottom: -4px; /* 線がはみ出さないように短く調整 */
     width: 1px;
     background: #444;
 }
@@ -226,11 +226,10 @@ footer {
     min-width: 45px;
     position: relative;
 }
-/* 時間の横のドット */
 .timeline-time::before {
     content: '';
     position: absolute;
-    left: -1rem; /* パディング分戻る */
+    left: -1rem;
     top: 6px;
     width: 9px;
     height: 9px;
