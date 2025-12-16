@@ -101,7 +101,7 @@ footer {
     border-radius: 50%; box-shadow: 0 0 5px var(--accent-color);
 }
 
-/* --- Modal Popup --- */
+/* --- Modal Popup (詳細展開機能用に修正) --- */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(2px);
@@ -116,7 +116,7 @@ footer {
     border: 2px solid var(--main-color);
     box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
     padding: 2px; position: relative;
-    /* overflow: hidden; スライド演出のため */
+    /* overflow: hidden; ← 削除（ツールチップなどが切れないように） */
 }
 
 /* 初期表示アニメーション */
@@ -131,11 +131,110 @@ footer {
     margin-left: auto; background: transparent; border: none;
     color: #000; font-weight: bold; cursor: pointer; font-size: 1.2rem;
 }
-.modal-content { padding: 2rem; color: var(--text-color); min-height: 100px; }
+
+.modal-content { padding: 1.5rem; color: var(--text-color); min-height: 100px; }
+
+
+/* --- 予定リストのデザイン（クリッカブルに） --- */
 #modalTaskList { list-style: none; padding: 0; margin: 0; }
-#modalTaskList li { padding: 0.5rem 0; border-bottom: 1px dashed #333; font-size: 1.2rem; }
-#modalTaskList li::before { content: '> '; color: var(--accent-color); }
-.modal-footer { padding: 0.5rem; text-align: right; font-size: 0.7rem; color: #666; border-top: 1px solid #333; }
+
+.task-item {
+    border-bottom: 1px dashed #333;
+    padding: 0.8rem 0;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+}
+
+.task-item:hover {
+    color: var(--main-color);
+    padding-left: 0.5rem; /* ホバーで少し右に動く */
+    background: rgba(0, 243, 255, 0.05);
+}
+
+.task-item::before {
+    content: '> ';
+    color: var(--accent-color);
+    margin-right: 0.5rem;
+    display: inline-block;
+    transition: 0.2s;
+}
+
+/* 展開時のスタイル */
+.task-item.expanded {
+    border-bottom: 1px solid var(--main-color);
+    background: rgba(0, 243, 255, 0.05);
+    padding-left: 0.5rem;
+}
+
+.task-item.expanded::before {
+    transform: rotate(90deg); /* 矢印を下に向ける */
+}
+
+/* --- 詳細情報エリア（最初は隠す） --- */
+.task-details {
+    display: none; /* デフォルト非表示 */
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-top: 1px dotted #444;
+    font-size: 0.9rem;
+    color: #aaa;
+    animation: slideDown 0.3s ease-out;
+}
+
+.task-item.expanded .task-details {
+    display: block; /* 展開時に表示 */
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 詳細グリッド */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.detail-label {
+    color: var(--main-color);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-right: 2px solid var(--accent-color);
+    padding-right: 0.5rem;
+    text-align: right;
+}
+
+.detail-value {
+    color: #fff;
+    word-break: break-all;
+}
+
+/* アクションボタン（マップなど） */
+.action-btn {
+    display: inline-block;
+    background: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 0.2rem 0.8rem;
+    font-size: 0.8rem;
+    text-decoration: none;
+    margin-right: 0.5rem;
+    transition: 0.2s;
+    font-family: var(--font-stack);
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    background: var(--accent-color);
+    color: #000;
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
 
 /* --- Side Navigation Buttons --- */
 .side-nav-btn {
@@ -219,3 +318,4 @@ footer {
     .side-nav-btn.left { left: 0; }
     .side-nav-btn.right { right: 0; }
 }
+
