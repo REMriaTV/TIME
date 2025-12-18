@@ -1,12 +1,16 @@
 // ==========================================
 //  CONFIG: 任務データ（スケジュール）の設定
 // ==========================================
+// 【入力ルール】
+// "イベント名 @ 場所 / 時間 // メモ"
+// ★改行を含むメモ（移動ルートなど）を書きたい場合は、
+//   ダブルクォーテーション(")ではなくバッククォート(`)で囲んでください。
+
 const missionData = {
     "2025-12-14": ["SEExHARUイベント@慶應三田/7:00-19:00", "移動＠三田→京都／19:00-22:00"],
     "2025-12-15": "KUNIふりかえり@京都未来庵/9:00-12:00 // 終了",
     "2025-12-16": ["奈良研修MTG@online/9:30-10:30 // 終了", "東京都ふりかえり@online/13:00~14:00"],
     
-    // ▼ ここを修正しました（閉じ忘れ＆カンマ追加）
     "2025-12-17": `英賀保@兵庫県姫路市飾磨区山崎/9:00-11:00 // 
 【移動ルート】
 06:45 アゴーラ京都烏丸（タクシー）`,
@@ -14,16 +18,16 @@ const missionData = {
     "2025-12-18": [
         "たきちゃん@online/11:00-12:00 // ", 
         "新事業進出補助金の電子申請@online/11:30~12:00 // ※ 時間厳守 ",
-        "SOAN打合わせ@京都府京都市下京区堺町21/13:00~14:00 // ", 
+        "SOAN打合わせ@京都府京都市下京区堺町21/12:00~13:00 // ", 
         "二傳リサーチ@京都府京都市中京区鍛冶町142/16:00~17:00 // ",
-        "矢里さん打合せ@京都府京都市下京区朱雀正会町1-1/18:00-19:00 // ",
-        "矢里さんディナー@京都府京都市下京区西酢屋町2-3/19:00-21:30 //"
+        "矢里さん@京都府京都市下京区朱雀正会町1-1/18:00-19:00 // ",
+        "矢里さん@京都府京都市下京区西酢屋町2-3/19:00-21:30 //"
     ],
     
     "2025-12-19": "「生物多様性」会議@京都 // アレンジ度合いを探る",
     "2025-12-22": ["「生物多様性」1月リサーチ@京都/10:00-13:00", "アプリ開発mtg@online/15:00-16:00"],
-    "2025-12-24": "ラムセス展@豊洲／9:00〜17:00 // チケット購入済",
-    "2025-12-25": ["GHmtg@online/13:00-14:00", "H&Eクリスマス会@東京／18:00~ // "],
+    "2025-12-24": "ラムセス展@東京都江東区豊洲6-1-23 チームラボプラネッツ付近／9:00〜17:00 // チケット購入済み",
+    "2025-12-25": ["GHmtg@online/13:00-14:00", "H&Eクリスマス会@東京／18:00~ // プレゼント交換あり"],
     
     "2025-12-27": `ダイちゃん夫妻+Sacchan@自宅/12:00~14:00 // 
 【移動ルート】
@@ -181,6 +185,7 @@ function updateModalContent(dateKey) {
             let title = taskStr;
             let location = "UNKNOWN";
             let time = "TBD";
+            let startTime = ""; // 開始時刻（見出し用）
             let note = "";
             let isOnline = false;
 
@@ -212,12 +217,27 @@ function updateModalContent(dateKey) {
                 time = parts[1];
             }
 
+            // 開始時刻の抽出 (例: "11:00-12:00" -> "11:00")
+            if (time !== "TBD") {
+                // ハイフンやチルダなどで分割して最初の要素を取得
+                const timeParts = time.split(/[-~〜]/);
+                if (timeParts.length > 0) {
+                    startTime = timeParts[0].trim();
+                }
+            }
+
             const onlineKeywords = ["online", "zoom", "meet", "webex", "teams", "skype", "discord", "オンライン", "リモート"];
             if (onlineKeywords.some(keyword => location.toLowerCase().includes(keyword))) {
                 isOnline = true;
             }
 
-            copyText += `[${time}] ${title}\nLOC: ${location}\n`;
+            // ★コピー用テキスト：LOCをGoogleマップリンクに
+            let locText = location;
+            if (!isOnline && location !== "UNKNOWN") {
+                locText = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+            }
+
+            copyText += `[${time}] ${title}\nLOC: ${locText}\n`;
             if(note) copyText += `NOTE:\n${note}\n`;
             copyText += `------------------------\n`;
 
@@ -240,7 +260,6 @@ function updateModalContent(dateKey) {
                 let hasTimeline = false;
 
                 lines.forEach(line => {
-                    // "HH:MM 内容" の形式にマッチするかチェック (例: 09:00 東京駅発)
                     const timeMatch = line.trim().match(/^(\d{1,2}:\d{2})\s+(.*)/);
                     if (timeMatch) {
                         hasTimeline = true;
@@ -251,7 +270,6 @@ function updateModalContent(dateKey) {
                             </div>
                         `;
                     } else {
-                        // 通常のメモ行
                         if (line.trim() !== "") {
                             normalNoteHtml += line + "<br>";
                         }
@@ -265,10 +283,14 @@ function updateModalContent(dateKey) {
                 noteHtml += '</div>';
             }
 
+            // ★見出しに開始時刻を追加
+            // startTimeがあれば [11:00] のように表示、なければそのまま
+            const timeDisplay = startTime ? `<span style="color:var(--main-color); margin-right:0.5em; font-weight:normal;">[${startTime}]</span>` : "";
+
             const li = document.createElement("li");
             li.className = "task-item";
             li.innerHTML = `
-                <span class="task-title">${title}</span>
+                <span class="task-title">${timeDisplay}${title}</span>
                 <div class="task-details">
                     <div class="detail-grid">
                         <div class="detail-label">TIME</div>
@@ -409,3 +431,5 @@ renderCalendar();
 checkUrlParams(); 
 setInterval(updateClock, 1000);
 setInterval(addLog, 2500);
+
+
